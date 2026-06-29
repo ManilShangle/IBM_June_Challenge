@@ -22,7 +22,7 @@ from src.vision_client import VisionClientError, describe_video_frames
 from src.video_utils import VideoExtractionError, extract_frames_jpeg
 
 st.set_page_config(
-    page_title="VAR Decision Predictor",
+    page_title="AdVARtage",
     page_icon=":material/sports_soccer:",
     layout="centered",
 )
@@ -519,7 +519,7 @@ def run_prediction_from_text(situation: str) -> None:
 # ── Page header ───────────────────────────────────────────────────────────────
 st.markdown(
     '<div class="app-header">'
-    '<span class="app-name">VAR Decision Predictor</span>'
+    '<span class="app-name">AdVARtage</span>'
     '<span class="app-title">What will the referee call?</span>'
     '<span class="app-desc">Upload a match clip. IBM Granite Vision reads the footage and the IFAB Laws of the Game determine the ruling.</span>'
     '</div>',

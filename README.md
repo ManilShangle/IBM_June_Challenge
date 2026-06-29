@@ -1,6 +1,6 @@
-# VAR Decision Predictor
+# AdVARtage
 
-Built for the **IBM SkillsBuild AI Builders Challenge** (June 2026, theme: *"AI Inside the Match"*).
+Get the edge before the call. Built for the **IBM SkillsBuild AI Builders Challenge** (June 2026, theme: *"AI Inside the Match"*).
 
 ## The problem
 
