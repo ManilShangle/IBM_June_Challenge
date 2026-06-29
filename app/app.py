@@ -3,6 +3,7 @@ import html as _html
 import json
 import re
 import sys
+import threading
 from pathlib import Path
 
 import streamlit as st
@@ -10,7 +11,12 @@ import streamlit.components.v1 as components
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from src.config import INCIDENTS_PATH
+from src.config import (
+    GRANITE_BACKEND,
+    INCIDENTS_PATH,
+    REPLICATE_API_TOKEN,
+    REPLICATE_MODEL,
+)
 from src.predictor import MatchIntake, PredictionError, VerdictResult, build_incident_text, predict_verdict
 from src.vision_client import VisionClientError, describe_video_frames
 from src.video_utils import VideoExtractionError, extract_frames_jpeg
@@ -51,8 +57,7 @@ _RULING_TINTS = {
     WARNING:  "rgba(214,135,42,0.11)",
 }
 
-# YouTube video IDs are exactly 11 chars from this alphabet
-_YT_ID_RE = re.compile(r"^[A-Za-z0-9_-]{11}$")
+_YT_ID_RE       = re.compile(r"^[A-Za-z0-9_-]{11}$")
 _YT_ID_FROM_URL = re.compile(
     r"(?:youtube\.com/(?:watch\?(?:.*&)?v=|shorts/)|youtu\.be/)([A-Za-z0-9_-]{11})"
 )
@@ -77,12 +82,17 @@ html, body, [class*="css"], .stApp {{
     max-width: 680px;
     margin-left: auto !important;
     margin-right: auto !important;
+    text-align: left;
 }}
 
+/* ── Header (all text centered) ── */
 .app-header {{
-    text-align: center;
+    text-align: center !important;
     margin-bottom: 2rem;
+    width: 100%;
 }}
+
+.app-header * {{ text-align: center !important; }}
 
 .app-name {{
     font-size: 0.72rem;
@@ -91,6 +101,7 @@ html, body, [class*="css"], .stApp {{
     text-transform: uppercase;
     color: {MUTED};
     margin: 0 0 0.55rem;
+    display: block;
 }}
 
 .app-title {{
@@ -101,6 +112,7 @@ html, body, [class*="css"], .stApp {{
     margin: 0 0 0.5rem;
     text-wrap: balance;
     line-height: 1.15;
+    display: block;
 }}
 
 .app-desc {{
@@ -108,11 +120,12 @@ html, body, [class*="css"], .stApp {{
     line-height: 1.65;
     color: {MUTED};
     max-width: 46ch;
-    margin: 0 auto;
-    text-align: center;
+    margin: 0 auto !important;
+    display: block;
     text-wrap: pretty;
 }}
 
+/* ── Tabs ── */
 .stTabs [data-baseweb="tab-list"] {{
     gap: 0;
     border-bottom: 1px solid {BORDER};
@@ -140,6 +153,7 @@ html, body, [class*="css"], .stApp {{
     height: 2px !important;
 }}
 
+/* ── Onboarding steps ── */
 .steps {{
     display: flex;
     margin-bottom: 1.25rem;
@@ -149,37 +163,30 @@ html, body, [class*="css"], .stApp {{
     background: {SURFACE};
 }}
 
-.step {{
-    flex: 1;
-    padding: 0.9rem 1rem;
-    display: flex;
-    align-items: flex-start;
-    gap: 0.65rem;
-}}
-
+.step {{ flex: 1; padding: 0.9rem 1rem; display: flex; align-items: flex-start; gap: 0.65rem; }}
 .step + .step {{ border-left: 1px solid {BORDER}; }}
-
-.step-num {{
-    font-size: 1rem;
-    font-weight: 700;
-    color: {MUTED};
-    flex-shrink: 0;
-    line-height: 1.3;
-    min-width: 1rem;
-}}
-
+.step-num {{ font-size: 1rem; font-weight: 700; color: {MUTED}; flex-shrink: 0; line-height: 1.3; min-width: 1rem; }}
 .step-text {{ font-size: 0.8rem; line-height: 1.5; color: {MUTED}; }}
 .step-text strong {{ color: {INK}; display: block; font-size: 0.85rem; margin-bottom: 0.1rem; }}
 
+/* ── Drop zone ── */
 div[data-testid="stFileUploader"] section {{
-    border-radius: 10px;
-    border: 1.5px dashed {BORDER};
+    border-radius: 12px;
+    border: 2px dashed {BORDER};
     background: {SURFACE};
-    transition: border-color 0.18s ease;
+    transition: border-color 0.18s ease, background 0.18s ease;
     cursor: pointer;
+    min-height: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }}
 
-div[data-testid="stFileUploader"] section:hover {{ border-color: {MUTED}; }}
+div[data-testid="stFileUploader"] section:hover,
+div[data-testid="stFileUploader"] section:focus-within {{
+    border-color: {INK};
+    background: {RAISED};
+}}
 
 div[data-testid="stFileUploaderDropzoneInstructions"] div span {{
     color: {INK} !important;
@@ -187,8 +194,10 @@ div[data-testid="stFileUploaderDropzoneInstructions"] div span {{
     font-size: 0.95rem;
 }}
 
+/* Hide "Limit: 200MB per file" */
 div[data-testid="stFileUploaderDropzoneInstructions"] small {{ display: none !important; }}
 
+/* ── Buttons ── */
 .stButton button, .stFormSubmitButton button {{
     border-radius: 8px !important;
     font-weight: 600 !important;
@@ -226,6 +235,7 @@ button[kind="primaryFormSubmit"]:hover,
     cursor: not-allowed !important;
 }}
 
+/* ── Verdict card ── */
 .verdict-card {{
     border-radius: 10px;
     overflow: hidden;
@@ -259,42 +269,19 @@ button[kind="primaryFormSubmit"]:hover,
     border-top: 1px solid {BORDER};
 }}
 
-.verdict-law {{
-    font-size: 0.76rem;
-    font-weight: 500;
-    color: {MUTED};
-    margin: 0 0 0.65rem;
-}}
+.verdict-law {{ font-size: 0.76rem; font-weight: 500; color: {MUTED}; margin: 0 0 0.65rem; }}
+.verdict-rationale {{ font-size: 0.95rem; line-height: 1.65; color: {INK}; opacity: 0.88; margin: 0 0 0.85rem; }}
 
-.verdict-rationale {{
-    font-size: 0.95rem;
-    line-height: 1.65;
-    color: {INK};
-    opacity: 0.88;
-    margin: 0 0 0.85rem;
-}}
-
-.verdict-plain-box {{
-    background: {RAISED};
-    border-radius: 7px;
-    padding: 0.7rem 0.95rem;
-}}
-
-.verdict-plain-label {{
-    font-size: 0.65rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: {MUTED};
-    margin-bottom: 0.25rem;
-}}
-
+.verdict-plain-box {{ background: {RAISED}; border-radius: 7px; padding: 0.7rem 0.95rem; }}
+.verdict-plain-label {{ font-size: 0.65rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: {MUTED}; margin-bottom: 0.25rem; }}
 .verdict-plain-text {{ font-size: 0.88rem; line-height: 1.6; color: {MUTED}; margin: 0; }}
 
+/* ── Incident list ── */
 .inc-title {{ font-size: 0.97rem; font-weight: 700; color: {INK}; margin: 0 0 0.08rem; }}
 .inc-meta {{ font-size: 0.74rem; color: {MUTED}; margin: 0 0 0.45rem; }}
 .inc-summary {{ font-size: 0.82rem; line-height: 1.55; color: {MUTED}; margin: 0.4rem 0 0.65rem; }}
 
+/* ── Expander / misc ── */
 [data-testid="stExpander"] {{
     background: {SURFACE} !important;
     border: 1px solid {BORDER} !important;
@@ -328,6 +315,45 @@ hr {{ border-color: {BORDER} !important; margin: 1.4rem 0 !important; }}
 st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 
 
+# ── Model keep-warm ───────────────────────────────────────────────────────────
+# Replicate spins down GPU instances after inactivity. Sending a 1-token ping
+# every 4 minutes keeps the instance allocated so user predictions skip the
+# cold-start queue entirely.
+def _ping_replicate() -> None:
+    try:
+        import replicate as _replicate
+        c = _replicate.Client(api_token=REPLICATE_API_TOKEN)
+        list(c.run(REPLICATE_MODEL, input={"prompt": ".", "max_new_tokens": 1}))
+    except Exception:
+        pass
+
+
+def _schedule_keepwarm() -> None:
+    if GRANITE_BACKEND != "replicate" or not REPLICATE_API_TOKEN:
+        return
+    t = threading.Timer(240.0, _keepwarm_cycle)
+    t.daemon = True
+    t.start()
+
+
+def _keepwarm_cycle() -> None:
+    _ping_replicate()
+    _schedule_keepwarm()
+
+
+@st.cache_resource
+def _start_keepwarm() -> bool:
+    """Fires once per Streamlit server process. Sends an immediate warm-up ping
+    then reschedules every 4 minutes to prevent cold starts for all users."""
+    if GRANITE_BACKEND != "replicate" or not REPLICATE_API_TOKEN:
+        return False
+    threading.Thread(target=_keepwarm_cycle, daemon=True).start()
+    return True
+
+
+_start_keepwarm()
+
+
 @st.cache_resource
 def load_incidents() -> list[dict]:
     return json.loads(INCIDENTS_PATH.read_text(encoding="utf-8"))
@@ -341,30 +367,99 @@ def ruling_color(ruling: str) -> str:
 
 
 def ruling_tint(ruling: str) -> str:
-    """Header background tint for the verdict card, keyed on ruling_color output."""
     return _RULING_TINTS.get(ruling_color(ruling), _RULING_TINTS[WARNING])
 
 
 def safe_yt_id(url: str) -> str | None:
-    """Extract and validate a YouTube video ID from any common URL format.
-
-    Accepts youtube.com/watch?v=, youtu.be/, and /shorts/ links.
-    Returns None if the ID cannot be extracted or fails the 11-char alphabet check.
-    """
+    """Extract and validate a YouTube video ID (always 11 chars, [A-Za-z0-9_-])."""
     m = _YT_ID_FROM_URL.search(url)
     if m and _YT_ID_RE.match(m.group(1)):
         return m.group(1)
     return None
 
 
-def render_verdict(result: VerdictResult, visual_desc: str | None = None):
-    """Render the verdict card. All LLM-sourced fields are html.escaped before
-    interpolation to prevent XSS from prompt-injected model output.
+def yt_lite_embed(vid_id: str) -> str:
+    """Lite embed: shows maxresdefault thumbnail (falls back to hqdefault) with
+    a play button. Clicking loads the real iframe with autoplay. Much crisper
+    than the default YouTube embed thumbnail quality.
     """
+    return f"""<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+  body {{ background: #000; }}
+  .yt {{
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+  }}
+  .yt img {{
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.2s;
+  }}
+  .yt:hover img {{ opacity: 0.85; }}
+  .play {{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 68px;
+    height: 48px;
+    background: rgba(0,0,0,0.75);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+    pointer-events: none;
+  }}
+  .yt:hover .play {{ background: #ff0000; }}
+  .play svg {{ fill: #fff; width: 28px; height: 28px; }}
+  .yt iframe {{
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }}
+</style>
+</head>
+<body>
+  <div class="yt" id="v" onclick="load()">
+    <img
+      src="https://img.youtube.com/vi/{vid_id}/maxresdefault.jpg"
+      onerror="this.src='https://img.youtube.com/vi/{vid_id}/hqdefault.jpg'"
+      loading="lazy"
+    />
+    <div class="play">
+      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    </div>
+  </div>
+  <script>
+    function load() {{
+      document.getElementById('v').innerHTML =
+        '<iframe src="https://www.youtube.com/embed/{vid_id}?autoplay=1&rel=0"'
+        + ' frameborder="0" allow="autoplay; encrypted-media; picture-in-picture"'
+        + ' allowfullscreen></iframe>';
+    }}
+  </script>
+</body>
+</html>"""
+
+
+def render_verdict(result: VerdictResult, visual_desc: str | None = None):
     color = ruling_color(result.predicted_ruling)
     tint  = ruling_tint(result.predicted_ruling)
 
-    # Escape all LLM-generated strings before injecting into HTML (V1 fix)
     ruling_safe  = _html.escape(result.predicted_ruling)
     law_safe     = _html.escape(result.law_citation)
     rat_safe     = _html.escape(result.rationale)
@@ -400,8 +495,7 @@ def render_verdict(result: VerdictResult, visual_desc: str | None = None):
 
 
 def _run_prediction(situation: str, visual_desc: str = "") -> None:
-    """Shared pipeline: situation text + optional visual desc → verdict card."""
-    with st.spinner("Matching against the Laws of the Game... (first request may take 1-2 min to load the model)"):
+    with st.spinner("Matching against the Laws of the Game..."):
         try:
             intake = MatchIntake(situation=situation, visual_description=visual_desc)
             result = predict_verdict(build_incident_text(intake))
@@ -418,7 +512,7 @@ def run_prediction_from_video(video_bytes: bytes) -> None:
             visual_desc = describe_video_frames(frames)
         except (VisionClientError, VideoExtractionError) as exc:
             st.warning(f"Could not analyze footage: {exc}")
-            return  # explicit failure; do not continue with empty description
+            return
     _run_prediction(visual_desc, visual_desc)
 
 
@@ -429,9 +523,9 @@ def run_prediction_from_text(situation: str) -> None:
 # ── Page header ───────────────────────────────────────────────────────────────
 st.markdown(
     '<div class="app-header">'
-    '<p class="app-name">VAR Decision Predictor</p>'
-    '<h1 class="app-title">What will the referee call?</h1>'
-    '<p class="app-desc">Upload a match clip. IBM Granite Vision reads the footage and the IFAB Laws of the Game determine the ruling.</p>'
+    '<span class="app-name">VAR Decision Predictor</span>'
+    '<span class="app-title">What will the referee call?</span>'
+    '<span class="app-desc">Upload a match clip. IBM Granite Vision reads the footage and the IFAB Laws of the Game determine the ruling.</span>'
     '</div>',
     unsafe_allow_html=True,
 )
@@ -444,11 +538,13 @@ with tab_upload:
         '<div class="steps">'
         '<div class="step">'
         '<span class="step-num">1</span>'
-        '<div class="step-text"><strong>Upload a clip or photo</strong>Video gives the best result. A still frame also works.</div>'
+        '<div class="step-text"><strong>Drop or select a clip</strong>'
+        'Drag a video or photo onto the zone below, or click to browse.</div>'
         '</div>'
         '<div class="step">'
         '<span class="step-num">2</span>'
-        '<div class="step-text"><strong>Press "Predict ruling"</strong>AI reads the footage and applies the Laws of the Game.</div>'
+        '<div class="step-text"><strong>Press "Predict ruling"</strong>'
+        'AI reads the footage and applies the Laws of the Game.</div>'
         '</div>'
         '</div>',
         unsafe_allow_html=True,
@@ -468,13 +564,13 @@ with tab_upload:
         if submitted and footage is not None:
             run_prediction_from_video(footage.getvalue())
         elif submitted:
-            st.warning("Upload a clip or photo first.")
+            st.warning("Drop or select a clip first.")
 
 # ── Tab 2: Famous Incidents ───────────────────────────────────────────────────
 with tab_incidents:
     st.markdown(
         f'<p style="font-size:0.85rem;color:{MUTED};margin-bottom:1.4rem;text-align:center;">'
-        'Five decisions that stopped the game. Watch the clip, then press Analyze.</p>',
+        'Five decisions that stopped the game. Click a thumbnail to watch, then press Analyze.</p>',
         unsafe_allow_html=True,
     )
 
@@ -489,19 +585,9 @@ with tab_incidents:
         )
 
         if vid_id:
-            # components.html() renders a real sandboxed iframe.
-            # st.markdown would strip the iframe tag.
-            components.html(
-                f'<iframe width="100%" height="370"'
-                f' src="https://www.youtube.com/embed/{vid_id}"'
-                ' frameborder="0"'
-                ' allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"'
-                ' allowfullscreen style="display:block;border:none;border-radius:8px;"></iframe>',
-                height=370,
-                scrolling=False,
-            )
+            components.html(yt_lite_embed(vid_id), height=400, scrolling=False)
         else:
-            st.warning(f"Could not load video for {inc['title']} — invalid YouTube URL.")
+            st.warning(f"Invalid YouTube URL for {inc['title']}")
 
         st.markdown(
             f'<p class="inc-summary">{_html.escape(inc["summary"])}</p>',
