@@ -7,7 +7,13 @@
     "summary": "Sterling scored a last-minute winner to send City through on away goals. VAR disallowed it after a 4-minute check: Aguero's arm was fractionally offside in the build-up.",
     "situation_prefill": "Sergio Aguero plays the ball in the build-up to a goal. His raised arm extends beyond the line of the last defender. The goal is scored by a teammate. VAR reviews whether the arm counts as an offside body part under Law 11.",
     "expected_ruling": "Goal Disallowed",
-    "youtube_url": "https://www.youtube.com/watch?v=r6TBTo6lT-o"
+    "youtube_url": "https://www.youtube.com/watch?v=r6TBTo6lT-o",
+    "cached_verdict": {
+      "predicted_ruling": "Goal Disallowed",
+      "law_citation": "Law 11 - Offside",
+      "rationale": "Aguero's raised arm extended beyond the last Tottenham defender at the moment the ball was played. Under the Laws as applied in 2018/19, that position made him offside, rendering Sterling's finish invalid.",
+      "plain_english_law": "A player is offside if any relevant part of their body is ahead of the second-to-last opponent when a teammate plays the ball. At the time of this incident, a raised arm counted toward that calculation."
+    }
   },
   {
     "id": "france-tunisia-wc-2022",
@@ -17,7 +23,13 @@
     "summary": "Griezmann scored in injury time, players celebrated, then VAR disallowed it for offside after the final whistle had already blown. The stadium erupted in chaos.",
     "situation_prefill": "Antoine Griezmann receives the ball in the penalty area and scores. A French attacker is positioned ahead of the last Tunisian defender when the pass is played. VAR reviews the offside line and the timing of the pass.",
     "expected_ruling": "Goal Disallowed",
-    "youtube_url": "https://www.youtube.com/watch?v=C-kVZvQlblI"
+    "youtube_url": "https://www.youtube.com/watch?v=C-kVZvQlblI",
+    "cached_verdict": {
+      "predicted_ruling": "Goal Disallowed",
+      "law_citation": "Law 11 - Offside",
+      "rationale": "A French attacker was ahead of the last Tunisian defender when the pass to Griezmann was played. VAR confirmed the offside line and disallowed the goal, even after the final whistle had already been blown.",
+      "plain_english_law": "If an attacker is in an offside position when the ball is played to them and they become involved in the move, the goal does not count. A VAR review already underway is not cancelled by the final whistle."
+    }
   },
   {
     "id": "luis-diaz-spurs-2023",
@@ -27,7 +39,13 @@
     "summary": "Luis Diaz's goal was disallowed for offside. He was clearly onside. VAR upheld the flag due to a communication breakdown between the VAR and assistant VAR. PGMOL later admitted significant human error.",
     "situation_prefill": "Luis Diaz receives the ball and scores. The assistant referee flags for offside. Replays show Diaz's entire body is behind the last defender when the ball is played. VAR reviews the flag. The question is whether any part of Luis Diaz's body was ahead of the last Tottenham defender at the moment of the pass.",
     "expected_ruling": "Goal Stands",
-    "youtube_url": "https://www.youtube.com/watch?v=joyJ6qOibUQ"
+    "youtube_url": "https://www.youtube.com/watch?v=joyJ6qOibUQ",
+    "cached_verdict": {
+      "predicted_ruling": "Goal Stands",
+      "law_citation": "Law 11 - Offside",
+      "rationale": "Diaz's entire body was behind the last Tottenham defender when the pass was played. He was clearly onside. VAR upheld the flag due to a communication breakdown rather than a correct reading of Law 11. PGMOL later admitted the error in full.",
+      "plain_english_law": "A player is not offside if every part of their body they can legally score with is level with or behind the second-to-last opponent. When any doubt exists, the player should be ruled onside."
+    }
   },
   {
     "id": "japan-spain-wc-2022",
@@ -37,7 +55,13 @@
     "summary": "Morales's cross appeared to have gone fully out of play before Ao Tanaka tapped it in. VAR used 3D imaging technology to determine a sliver of the ball remained on the line. Goal stood. Japan topped the group.",
     "situation_prefill": "Kaoru Mitoma races to the byline and plays a cross. The entire ball appears to cross the byline before Ao Tanaka converts. VAR reviews using semi-automated camera technology whether any part of the ball remained on or behind the byline at the moment the cross was made.",
     "expected_ruling": "Goal Stands",
-    "youtube_url": "https://www.youtube.com/watch?v=7jX3gdU-E8U"
+    "youtube_url": "https://www.youtube.com/watch?v=7jX3gdU-E8U",
+    "cached_verdict": {
+      "predicted_ruling": "Goal Stands",
+      "law_citation": "Law 1 - The Field of Play",
+      "rationale": "VAR 3D imaging determined that a sliver of Mitoma's ball remained touching the byline at the moment he played the cross. Under Law 1, the ball must fully cross the line to be out of play. Because part of the ball was still on the line, the cross was in play and Tanaka's finish counted.",
+      "plain_english_law": "The ball is only out of play when the whole ball has crossed the whole of the touchline or goal line. If any part of the ball is still on or inside the line, play continues."
+    }
   },
   {
     "id": "brazil-switzerland-wc-2022",
@@ -47,6 +71,12 @@
     "summary": "Casemiro's header was blocked by Akanji's arm inside the area. VAR reviewed for handball. No penalty given: the arm was judged to be in a natural position. The debate about what 'natural' means rumbled on.",
     "situation_prefill": "A header from Casemiro is blocked near the goal line by Switzerland defender Manuel Akanji. The ball strikes Akanji's arm. VAR reviews whether this is a handball offence under Law 12, specifically whether the arm was in an unnatural position.",
     "expected_ruling": "No Penalty",
-    "youtube_url": "https://www.youtube.com/watch?v=fjx0Ab8riQs"
+    "youtube_url": "https://www.youtube.com/watch?v=fjx0Ab8riQs",
+    "cached_verdict": {
+      "predicted_ruling": "No Penalty",
+      "law_citation": "Law 12 - Handling the Ball",
+      "rationale": "Akanji's arm was close to his body and in a natural position at the moment the ball struck it. A handball offence requires the arm to be in an unnatural position that makes the player's body bigger. That condition was not met, so no penalty was awarded.",
+      "plain_english_law": "Touching the ball with a hand or arm is only an offence if the arm is in an unnatural position that makes the player's body bigger. An arm resting naturally by the side is generally not a foul."
+    }
   }
 ]

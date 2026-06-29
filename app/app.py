@@ -316,38 +316,34 @@ st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 
 
 # ── Model keep-warm ───────────────────────────────────────────────────────────
-# Replicate spins down GPU instances after inactivity. Sending a 1-token ping
-# every 4 minutes keeps the instance allocated so user predictions skip the
-# cold-start queue entirely.
-def _ping_replicate() -> None:
+# client.predictions.create() queues a job on Replicate and returns immediately
+# without waiting for the result. This allocates a GPU instance in the
+# background while the user is still browsing, so their first real prediction
+# lands on a warm instance instead of joining a cold-start queue.
+def _ping_replicate_async() -> None:
     try:
         import replicate as _replicate
         c = _replicate.Client(api_token=REPLICATE_API_TOKEN)
-        list(c.run(REPLICATE_MODEL, input={"prompt": ".", "max_new_tokens": 1}))
+        c.predictions.create(
+            model=REPLICATE_MODEL,
+            input={"prompt": ".", "max_new_tokens": 1},
+        )
     except Exception:
         pass
 
 
-def _schedule_keepwarm() -> None:
-    if GRANITE_BACKEND != "replicate" or not REPLICATE_API_TOKEN:
-        return
-    t = threading.Timer(240.0, _keepwarm_cycle)
-    t.daemon = True
-    t.start()
-
-
-def _keepwarm_cycle() -> None:
-    _ping_replicate()
-    _schedule_keepwarm()
+def _keepwarm_loop() -> None:
+    import time
+    while True:
+        _ping_replicate_async()
+        time.sleep(180)
 
 
 @st.cache_resource
 def _start_keepwarm() -> bool:
-    """Fires once per Streamlit server process. Sends an immediate warm-up ping
-    then reschedules every 4 minutes to prevent cold starts for all users."""
     if GRANITE_BACKEND != "replicate" or not REPLICATE_API_TOKEN:
         return False
-    threading.Thread(target=_keepwarm_cycle, daemon=True).start()
+    threading.Thread(target=_keepwarm_loop, daemon=True).start()
     return True
 
 
@@ -595,6 +591,18 @@ with tab_incidents:
         )
 
         if st.button("Analyze this incident", key=f"analyze_{inc['id']}", use_container_width=True):
-            run_prediction_from_text(inc["situation_prefill"])
+            cv = inc.get("cached_verdict")
+            if cv:
+                result = VerdictResult(
+                    predicted_ruling=cv["predicted_ruling"],
+                    law_citation=cv["law_citation"],
+                    rationale=cv["rationale"],
+                    plain_english_law=cv.get("plain_english_law", ""),
+                    retrieved_law_excerpt="",
+                    retrieved_chunks=[],
+                )
+                render_verdict(result)
+            else:
+                run_prediction_from_text(inc["situation_prefill"])
 
         st.divider()
