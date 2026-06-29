@@ -108,6 +108,7 @@ This project supports four interchangeable Granite backends for text prediction,
 | `watsonx` | IBM watsonx.ai Lite plan (free), the full IBM Cloud path, more setup overhead |
 | `huggingface` | Hugging Face Inference API against a hosted `ibm-granite` model, alternative fallback |
 | `ollama` | Local Granite checkpoint via Ollama, fully offline fallback for unreliable demo-day WiFi |
+| `langflow` | Langflow as the live runtime: starts the exported flow in [`/flows`](flows/), calls its REST API (`/api/v1/run/{flow_id}`), and reads the Granite response from the Chat Output node. Run `langflow run` locally, import the flow, and set `LANGFLOW_FLOW_ID` in `.env`. |
 
 If a single backend has an outage or rate-limit issue on demo day, switching `GRANITE_BACKEND` in `.env` is a one-line change, not a rewrite.
 
@@ -128,10 +129,10 @@ tests/      Automated unit and smoke tests
 
 ## Limitations & future work
 
-- Footage analysis works frame-by-frame (a still image, or one extracted frame from a clip), not full motion tracking across a video, since real-time multi-frame video reasoning was out of scope for the build window.
+- Footage analysis sends up to 5 evenly-spaced frames from a video clip to IBM Granite Vision in a single call, giving the model temporal context across the incident. Full motion-tracking or player-level geometry (automated offside lines) remains future work.
 - Predicts a single incident's ruling, not a full match.
 - This is a research prototype, not a legal or refereeing authority. Predictions are AI-generated and will not always match the official outcome (see the accuracy note above).
-- Future work: multi-frame video understanding, semi-automated offside-line style geometric analysis, live match integration.
+- Future work: player-level geometric analysis for tight offside calls, live broadcast stream integration, larger ground-truth validation corpus.
 
 ## Acknowledgments
 

@@ -29,5 +29,9 @@ HF_MODEL_ID = os.getenv("HF_MODEL_ID", "ibm-granite/granite-3.1-8b-instruct")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "granite3.1-dense:8b")
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 
+LANGFLOW_API_URL = os.getenv("LANGFLOW_API_URL", "http://localhost:7860")
+LANGFLOW_FLOW_ID = os.getenv("LANGFLOW_FLOW_ID", "1faee69d-d060-4a1d-b573-001ca4180798")
+
 EMBEDDING_MODEL_NAME = "all-MiniLM-L6-v2"
 RETRIEVAL_TOP_K = 4
+VIDEO_FRAMES = int(os.getenv("VIDEO_FRAMES", "5"))

@@ -28,6 +28,27 @@
     "difficulty": "borderline"
   },
   {
+    "id": "off-05",
+    "category": "Offside",
+    "description": "Attacker is in an offside position when the ball is played, but a defender deliberately plays the ball before it reaches the attacker, resetting the offside trap.",
+    "ground_truth": "Not Offside - deliberate play by defender resets the position",
+    "difficulty": "borderline"
+  },
+  {
+    "id": "off-06",
+    "category": "Offside",
+    "description": "Attacker is in an onside position when the ball is played, then moves into an offside position before the ball arrives and scores.",
+    "ground_truth": "Not Offside - position at the moment the ball is played is what counts",
+    "difficulty": "borderline"
+  },
+  {
+    "id": "off-07",
+    "category": "Offside",
+    "description": "Goalkeeper rushes out, leaving no outfield defender near the goal line. Attacker is ahead of all outfield players but the goalkeeper is still closer to the goal line.",
+    "ground_truth": "Not Offside - goalkeeper counts as a defender",
+    "difficulty": "borderline"
+  },
+  {
     "id": "hand-01",
     "category": "Handball",
     "description": "Defender's arm is away from the body in a non-natural position and the ball strikes it inside the penalty box while attempting to block a cross.",
@@ -47,6 +68,20 @@
     "description": "Attacking player's hand makes clear contact with the ball before it goes into the net.",
     "ground_truth": "Goal Disallowed - handball by attacker",
     "difficulty": "clear"
+  },
+  {
+    "id": "hand-04",
+    "category": "Handball",
+    "description": "Defender uses their arm to deliberately control the ball on the edge of the penalty area, but the foul is outside the box by a few centimetres.",
+    "ground_truth": "No Penalty - foul outside the penalty area, free kick only",
+    "difficulty": "clear"
+  },
+  {
+    "id": "hand-05",
+    "category": "Handball",
+    "description": "Ball rebounds off an attacker's own arm from close range before falling to a teammate who scores; the attacker did not intentionally direct the ball.",
+    "ground_truth": "Goal Disallowed - accidental handball by an attacker in the build-up counts under current IFAB rules",
+    "difficulty": "borderline"
   },
   {
     "id": "pen-01",
@@ -70,6 +105,20 @@
     "difficulty": "clear"
   },
   {
+    "id": "pen-04",
+    "category": "Penalty/DOGSO",
+    "description": "Defender inside the box trips an attacker with a covering teammate nearby. The attacker was through on goal but there was one other defender who could have intercepted.",
+    "ground_truth": "Penalty - foul in the box; no Red Card as a covering defender was present (DOGSO criteria not fully met)",
+    "difficulty": "borderline"
+  },
+  {
+    "id": "pen-05",
+    "category": "Penalty",
+    "description": "Attacker cuts into the box and is caught by a sliding tackle that takes the ball cleanly; the attacker falls over the defender's outstretched leg.",
+    "ground_truth": "No Penalty - ball played first, fair challenge",
+    "difficulty": "borderline"
+  },
+  {
     "id": "red-01",
     "category": "Red Card",
     "description": "Defender, last player back, deliberately handles the ball on the goal line to stop it crossing into the net.",
@@ -89,5 +138,40 @@
     "description": "Two players jostle off the ball away from play after a whistle, one shoves the other in the chest with both hands, no punches thrown.",
     "ground_truth": "Yellow Card - unsporting behavior/no excessive force",
     "difficulty": "borderline"
+  },
+  {
+    "id": "red-04",
+    "category": "Red Card",
+    "description": "Player headbutts an opponent off the ball in clear sight of the assistant referee but the referee did not see it.",
+    "ground_truth": "Red Card - violent conduct, reviewable by VAR as a missed incident",
+    "difficulty": "clear"
+  },
+  {
+    "id": "gk-01",
+    "category": "Goalkeeper",
+    "description": "Goalkeeper picks up a deliberate back-pass played with the foot by a teammate inside their own penalty area.",
+    "ground_truth": "Indirect free kick to the opposing team inside the penalty area - deliberate back-pass handled",
+    "difficulty": "clear"
+  },
+  {
+    "id": "gk-02",
+    "category": "Goalkeeper",
+    "description": "Goalkeeper handles the ball outside the penalty area after rushing out to clear; the ball was clearly outside the box when caught.",
+    "ground_truth": "Red Card - deliberate handball outside the box denying an obvious goal-scoring opportunity",
+    "difficulty": "clear"
+  },
+  {
+    "id": "var-01",
+    "category": "VAR Review",
+    "description": "VAR reviews a potential penalty for a foul that looked clear in real time, but multiple angles show the defender got the ball cleanly before any contact with the attacker.",
+    "ground_truth": "VAR Review - No Clear Error, original on-field decision of no penalty stands",
+    "difficulty": "borderline"
+  },
+  {
+    "id": "var-02",
+    "category": "VAR Review",
+    "description": "Referee awards a penalty after a foul that occurred just outside the penalty area; VAR review confirms the contact point was outside the box.",
+    "ground_truth": "No Penalty - foul location outside the area, award a direct free kick instead",
+    "difficulty": "clear"
   }
 ]

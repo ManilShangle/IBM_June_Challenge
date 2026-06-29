@@ -10,8 +10,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from src.config import SCENARIOS_PATH
 from src.predictor import MatchIntake, PredictionError, VerdictResult, build_incident_text, predict_verdict
 from src.verdict_match import rulings_match
-from src.vision_client import VisionClientError, describe_image
-from src.video_utils import VideoExtractionError, extract_middle_frame_jpeg
+from src.vision_client import VisionClientError, describe_image, describe_video_frames
+from src.video_utils import VideoExtractionError, extract_frames_jpeg
 
 st.set_page_config(page_title="VAR Decision Predictor", page_icon=":material/sports_soccer:", layout="centered")
 
@@ -362,10 +362,10 @@ with tab_intake:
                     try:
                         footage_bytes = footage.getvalue()
                         if footage.type and footage.type.startswith("video"):
-                            frame_bytes = extract_middle_frame_jpeg(footage_bytes)
+                            frames = extract_frames_jpeg(footage_bytes)
+                            visual_description = describe_video_frames(frames)
                         else:
-                            frame_bytes = footage_bytes
-                        visual_description = describe_image(frame_bytes)
+                            visual_description = describe_image(footage_bytes)
                     except (VisionClientError, VideoExtractionError) as exc:
                         st.warning(f"Could not analyze footage: {exc}. Continuing with the text description only.")
 
