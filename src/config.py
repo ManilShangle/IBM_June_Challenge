@@ -20,7 +20,8 @@ WATSONX_URL = os.getenv("WATSONX_URL", "https://us-south.ml.cloud.ibm.com")
 WATSONX_MODEL_ID = os.getenv("WATSONX_MODEL_ID", "ibm/granite-3-8b-instruct")
 
 REPLICATE_API_TOKEN = os.getenv("REPLICATE_API_TOKEN", "")
-REPLICATE_MODEL = os.getenv("REPLICATE_MODEL", "ibm-granite/granite-3.3-8b-instruct")
+REPLICATE_MODEL = os.getenv("REPLICATE_MODEL", "ibm-granite/granite-4.0-h-small")
+REPLICATE_VISION_MODEL = os.getenv("REPLICATE_VISION_MODEL", "ibm-granite/granite-vision-3.3-2b")
 
 HF_API_TOKEN = os.getenv("HF_API_TOKEN", "")
 HF_MODEL_ID = os.getenv("HF_MODEL_ID", "ibm-granite/granite-3.1-8b-instruct")

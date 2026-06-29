@@ -11,6 +11,29 @@ from src.retrieval import LawChunk, format_law_chunks_for_prompt, retrieve_relev
 
 
 @dataclass
+class MatchIntake:
+    situation: str
+    team_a: str = ""
+    team_b: str = ""
+    visual_description: str = ""
+
+
+def build_incident_text(intake: MatchIntake) -> str:
+    """Combines the situation description, team names, and a footage-derived
+    visual description (if any) into the single incident text the rest of
+    the pipeline already expects.
+    """
+    parts = []
+    if intake.team_a.strip() and intake.team_b.strip():
+        parts.append(f"Match: {intake.team_a.strip()} vs {intake.team_b.strip()}.")
+    if intake.situation.strip():
+        parts.append(f"Situation: {intake.situation.strip()}")
+    if intake.visual_description.strip():
+        parts.append(f"Visual analysis from footage: {intake.visual_description.strip()}")
+    return " ".join(parts)
+
+
+@dataclass
 class VerdictResult:
     predicted_ruling: str
     confidence_percent: int
