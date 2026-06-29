@@ -20,18 +20,15 @@ st.set_page_config(
 )
 
 # ── Palette ───────────────────────────────────────────────────────────────────
-# All in oklch for perceptual consistency. Semantic color only — no decorative tints.
-BG        = "#0C0E12"   # oklch(0.09 0.008 260)
-SURFACE   = "#15181E"   # oklch(0.14 0.007 260)
-RAISED    = "#1C1F27"   # oklch(0.18 0.006 260)
-BORDER    = "#2C2F38"   # oklch(0.25 0.006 260)
-INK       = "#EFF0F4"   # oklch(0.96 0.004 250) — primary text
-MUTED     = "#8D9099"   # oklch(0.60 0.010 250) — secondary text
-
-# Verdict-only semantic palette (never used decoratively)
-POSITIVE  = "#3DB87D"   # oklch(0.70 0.14 148) — goal stands, no offside
-NEGATIVE  = "#D94840"   # oklch(0.60 0.20 25)  — offside, penalty, red card
-WARNING   = "#D6872A"   # oklch(0.70 0.15 72)  — yellow card, unclear
+BG       = "#0C0E12"
+SURFACE  = "#15181E"
+RAISED   = "#1C1F27"
+BORDER   = "#2C2F38"
+INK      = "#EFF0F4"
+MUTED    = "#8D9099"
+POSITIVE = "#3DB87D"
+NEGATIVE = "#D94840"
+WARNING  = "#D6872A"
 
 RULING_COLORS = {
     "Offside":                     NEGATIVE,
@@ -60,8 +57,10 @@ html, body, [class*="css"], .stApp {{
 
 .block-container {{
     padding-top: 3rem;
+    padding-bottom: 5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
     max-width: 680px;
-    /* centres the column within the viewport */
     margin-left: auto !important;
     margin-right: auto !important;
 }}
@@ -73,16 +72,16 @@ html, body, [class*="css"], .stApp {{
 }}
 
 .app-name {{
-    font-size: 0.78rem;
+    font-size: 0.72rem;
     font-weight: 600;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: {MUTED};
-    margin: 0 0 0.6rem;
+    margin: 0 0 0.55rem;
 }}
 
 .app-title {{
-    font-size: 1.75rem;
+    font-size: 1.7rem;
     font-weight: 700;
     letter-spacing: -0.025em;
     color: {INK};
@@ -92,11 +91,12 @@ html, body, [class*="css"], .stApp {{
 }}
 
 .app-desc {{
-    font-size: 0.9rem;
-    line-height: 1.6;
+    font-size: 0.88rem;
+    line-height: 1.65;
     color: {MUTED};
-    max-width: 50ch;
+    max-width: 46ch;
     margin: 0 auto;
+    text-align: center;
     text-wrap: pretty;
 }}
 
@@ -131,8 +131,7 @@ html, body, [class*="css"], .stApp {{
 /* ── Onboarding steps ── */
 .steps {{
     display: flex;
-    gap: 0;
-    margin-bottom: 1.4rem;
+    margin-bottom: 1.25rem;
     border: 1px solid {BORDER};
     border-radius: 10px;
     overflow: hidden;
@@ -141,10 +140,10 @@ html, body, [class*="css"], .stApp {{
 
 .step {{
     flex: 1;
-    padding: 0.85rem 1rem;
+    padding: 0.9rem 1rem;
     display: flex;
     align-items: flex-start;
-    gap: 0.7rem;
+    gap: 0.65rem;
 }}
 
 .step + .step {{
@@ -157,18 +156,19 @@ html, body, [class*="css"], .stApp {{
     color: {MUTED};
     flex-shrink: 0;
     line-height: 1.3;
+    min-width: 1rem;
 }}
 
 .step-text {{
-    font-size: 0.82rem;
-    line-height: 1.45;
+    font-size: 0.8rem;
+    line-height: 1.5;
     color: {MUTED};
 }}
 
 .step-text strong {{
     color: {INK};
     display: block;
-    font-size: 0.88rem;
+    font-size: 0.85rem;
     margin-bottom: 0.1rem;
 }}
 
@@ -191,14 +191,9 @@ div[data-testid="stFileUploaderDropzoneInstructions"] div span {{
     font-size: 0.95rem;
 }}
 
-/* Hide Streamlit's "Limit: 200MB per file" text */
+/* Hide "Limit: 200MB per file • MP4, MOV..." text */
 div[data-testid="stFileUploaderDropzoneInstructions"] small {{
     display: none !important;
-}}
-
-div[data-testid="stFileUploader"] label,
-div[data-testid="stFileUploader"] p {{
-    color: {MUTED} !important;
 }}
 
 /* ── Buttons ── */
@@ -206,23 +201,23 @@ div[data-testid="stFileUploader"] p {{
     border-radius: 8px !important;
     font-weight: 600 !important;
     font-size: 0.92rem !important;
-    transition: background 0.15s ease, opacity 0.15s ease !important;
+    transition: background 0.15s ease !important;
+    width: 100%;
 }}
 
-/* Primary: white bg + dark text — no color accent on action elements */
-.stButton button[kind="primary"],
-.stButton button[data-testid="stBaseButton-primary"] {{
+button[kind="primaryFormSubmit"],
+.stFormSubmitButton button,
+.stButton button[kind="primary"] {{
     background: {INK} !important;
     color: {BG} !important;
     border: none !important;
     padding: 0.65rem 1.4rem !important;
-    width: 100%;
 }}
 
-.stButton button[kind="primary"]:hover,
-.stButton button[data-testid="stBaseButton-primary"]:hover {{
+button[kind="primaryFormSubmit"]:hover,
+.stFormSubmitButton button:hover,
+.stButton button[kind="primary"]:hover {{
     background: #ffffff !important;
-    opacity: 1 !important;
 }}
 
 .stButton button:not([kind="primary"]) {{
@@ -236,8 +231,9 @@ div[data-testid="stFileUploader"] p {{
     border-color: {MUTED} !important;
 }}
 
-.stButton button:disabled {{
-    opacity: 0.4 !important;
+.stButton button:disabled,
+.stFormSubmitButton button:disabled {{
+    opacity: 0.35 !important;
     cursor: not-allowed !important;
 }}
 
@@ -246,6 +242,7 @@ div[data-testid="stFileUploader"] p {{
     border-radius: 10px;
     overflow: hidden;
     margin-top: 1.2rem;
+    margin-bottom: 0.5rem;
     border: 1px solid {BORDER};
 }}
 
@@ -254,17 +251,16 @@ div[data-testid="stFileUploader"] p {{
 }}
 
 .verdict-label {{
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     font-weight: 600;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: inherit;
     opacity: 0.75;
-    margin: 0 0 0.35rem;
+    margin: 0 0 0.3rem;
 }}
 
 .verdict-ruling {{
-    font-size: 2.1rem;
+    font-size: 2rem;
     font-weight: 700;
     margin: 0;
     letter-spacing: -0.025em;
@@ -278,10 +274,10 @@ div[data-testid="stFileUploader"] p {{
 }}
 
 .verdict-law {{
-    font-size: 0.78rem;
+    font-size: 0.76rem;
     font-weight: 500;
     color: {MUTED};
-    margin: 0 0 0.75rem;
+    margin: 0 0 0.65rem;
     letter-spacing: 0.01em;
 }}
 
@@ -300,12 +296,12 @@ div[data-testid="stFileUploader"] p {{
 }}
 
 .verdict-plain-label {{
-    font-size: 0.67rem;
+    font-size: 0.65rem;
     font-weight: 600;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: {MUTED};
-    margin-bottom: 0.28rem;
+    margin-bottom: 0.25rem;
 }}
 
 .verdict-plain-text {{
@@ -315,29 +311,25 @@ div[data-testid="stFileUploader"] p {{
     margin: 0;
 }}
 
-/* ── Incident cards (Famous Incidents tab) ── */
-.inc-header {{
-    margin-bottom: 0.35rem;
-}}
-
+/* ── Incident items ── */
 .inc-title {{
     font-size: 0.97rem;
     font-weight: 700;
     color: {INK};
-    margin: 0 0 0.1rem;
+    margin: 0 0 0.08rem;
 }}
 
 .inc-meta {{
-    font-size: 0.75rem;
+    font-size: 0.74rem;
     color: {MUTED};
-    margin: 0 0 0.4rem;
+    margin: 0 0 0.45rem;
 }}
 
 .inc-summary {{
     font-size: 0.82rem;
     line-height: 1.55;
     color: {MUTED};
-    margin: 0 0 0.6rem;
+    margin: 0.4rem 0 0.65rem;
 }}
 
 /* ── Expander ── */
@@ -353,7 +345,7 @@ div[data-testid="stFileUploader"] p {{
     font-size: 0.82rem !important;
 }}
 
-/* ── Spinners, alerts ── */
+/* ── Misc ── */
 .stSpinner > div > div {{ border-top-color: {INK} !important; }}
 
 .stAlert {{
@@ -363,12 +355,13 @@ div[data-testid="stFileUploader"] p {{
     color: {INK} !important;
 }}
 
-/* ── Toast ── */
 [data-testid="stToast"] {{
     background: {RAISED} !important;
     border: 1px solid {BORDER} !important;
     color: {INK} !important;
 }}
+
+hr {{ border-color: {BORDER} !important; margin: 1.4rem 0 !important; }}
 
 @media (prefers-reduced-motion: reduce) {{
     * {{ transition: none !important; }}
@@ -400,40 +393,46 @@ def render_verdict(result: VerdictResult, visual_desc: str | None = None):
     else:
         hdr_tint = "rgba(214,135,42,0.11)"
 
-    plain_block = ""
+    # Build HTML as concatenated single-line strings to avoid
+    # Markdown's 4-space-indent → code-block ambiguity
+    plain_html = ""
     if result.plain_english_law:
-        plain_block = f"""
-        <div class="verdict-plain-box">
-            <div class="verdict-plain-label">What this law means</div>
-            <p class="verdict-plain-text">{result.plain_english_law}</p>
-        </div>"""
+        law_escaped = (
+            result.plain_english_law
+            .replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+        )
+        plain_html = (
+            '<div class="verdict-plain-box">'
+            '<div class="verdict-plain-label">What this law means</div>'
+            f'<p class="verdict-plain-text">{law_escaped}</p>'
+            '</div>'
+        )
 
-    st.markdown(
-        f"""<div class="verdict-card">
-            <div class="verdict-header" style="background:{hdr_tint};">
-                <p class="verdict-label" style="color:{color};">Predicted ruling</p>
-                <p class="verdict-ruling" style="color:{color};">{result.predicted_ruling}</p>
-            </div>
-            <div class="verdict-body">
-                <p class="verdict-law">{result.law_citation}</p>
-                <p class="verdict-rationale">{result.rationale}</p>
-                {plain_block}
-            </div>
-        </div>""",
-        unsafe_allow_html=True,
+    card_html = (
+        '<div class="verdict-card">'
+        f'<div class="verdict-header" style="background:{hdr_tint};">'
+        f'<p class="verdict-label" style="color:{color};">Predicted ruling</p>'
+        f'<p class="verdict-ruling" style="color:{color};">{result.predicted_ruling}</p>'
+        '</div>'
+        f'<div class="verdict-body">'
+        f'<p class="verdict-law">{result.law_citation}</p>'
+        f'<p class="verdict-rationale">{result.rationale}</p>'
+        f'{plain_html}'
+        '</div>'
+        '</div>'
     )
+    st.markdown(card_html, unsafe_allow_html=True)
 
     if visual_desc:
-        with st.expander("Footage description from Granite Vision"):
+        with st.expander("What Granite Vision saw in the footage"):
             st.write(visual_desc)
-
-    with st.expander("IFAB law text used for grounding"):
-        st.text(result.retrieved_law_excerpt)
 
 
 def run_prediction_from_video(video_bytes: bytes):
     visual_desc = ""
-    with st.spinner("Granite Vision is reading the footage..."):
+    with st.spinner("Reading the footage with Granite Vision..."):
         try:
             frames = extract_frames_jpeg(video_bytes)
             visual_desc = describe_video_frames(frames)
@@ -441,7 +440,7 @@ def run_prediction_from_video(video_bytes: bytes):
             st.warning(f"Could not analyze footage: {exc}")
             return
 
-    with st.spinner("Matching against the IFAB Laws..."):
+    with st.spinner("Matching against the Laws of the Game... (first request may take 1-2 min to load the model)"):
         try:
             intake = MatchIntake(situation=visual_desc, visual_description=visual_desc)
             result = predict_verdict(build_incident_text(intake))
@@ -453,7 +452,7 @@ def run_prediction_from_video(video_bytes: bytes):
 
 
 def run_prediction_from_text(situation: str):
-    with st.spinner("Matching against the IFAB Laws..."):
+    with st.spinner("Matching against the Laws of the Game... (first request may take 1-2 min to load the model)"):
         try:
             intake = MatchIntake(situation=situation)
             result = predict_verdict(build_incident_text(intake))
@@ -463,13 +462,13 @@ def run_prediction_from_text(situation: str):
     render_verdict(result)
 
 
-# ── Page header (centered) ────────────────────────────────────────────────────
+# ── Page header ───────────────────────────────────────────────────────────────
 st.markdown(
-    """<div class="app-header">
-        <p class="app-name">VAR Decision Predictor</p>
-        <h1 class="app-title">What will the referee call?</h1>
-        <p class="app-desc">Upload a match clip and IBM Granite Vision reads the footage, then the IFAB Laws of the Game determine the ruling.</p>
-    </div>""",
+    '<div class="app-header">'
+    '<p class="app-name">VAR Decision Predictor</p>'
+    '<h1 class="app-title">What will the referee call?</h1>'
+    '<p class="app-desc">Upload a match clip. IBM Granite Vision reads the footage and the IFAB Laws of the Game determine the ruling.</p>'
+    '</div>',
     unsafe_allow_html=True,
 )
 
@@ -477,24 +476,17 @@ tab_upload, tab_incidents = st.tabs(["Try it", "Famous incidents"])
 
 # ── Tab 1: Upload ─────────────────────────────────────────────────────────────
 with tab_upload:
-    # Onboarding steps — genuine sequence so numbers are appropriate
     st.markdown(
-        """<div class="steps">
-            <div class="step">
-                <span class="step-num">1</span>
-                <div class="step-text">
-                    <strong>Upload a clip or photo</strong>
-                    A video gives the best result. A still frame also works.
-                </div>
-            </div>
-            <div class="step">
-                <span class="step-num">2</span>
-                <div class="step-text">
-                    <strong>Press "Predict ruling"</strong>
-                    AI reads the footage and applies the Laws of the Game.
-                </div>
-            </div>
-        </div>""",
+        '<div class="steps">'
+        '<div class="step">'
+        '<span class="step-num">1</span>'
+        '<div class="step-text"><strong>Upload a clip or photo</strong>Video gives the best result. A still frame also works.</div>'
+        '</div>'
+        '<div class="step">'
+        '<span class="step-num">2</span>'
+        '<div class="step-text"><strong>Press "Predict ruling"</strong>AI reads the footage and applies the Laws of the Game.</div>'
+        '</div>'
+        '</div>',
         unsafe_allow_html=True,
     )
 
@@ -517,7 +509,7 @@ with tab_upload:
 # ── Tab 2: Famous Incidents ───────────────────────────────────────────────────
 with tab_incidents:
     st.markdown(
-        f'<p style="font-size:0.88rem;color:{MUTED};margin-bottom:1.4rem;">Five VAR decisions that stopped the game. Watch the clip, then press Analyze to see what the Laws say.</p>',
+        f'<p style="font-size:0.85rem;color:{MUTED};margin-bottom:1.4rem;text-align:center;">Five decisions that stopped the game. Watch the clip, then press Analyze.</p>',
         unsafe_allow_html=True,
     )
 
@@ -525,28 +517,21 @@ with tab_incidents:
     for inc in incidents:
         vid_id = inc["youtube_url"].split("v=")[-1].split("&")[0]
 
-        # Title + meta above player
         st.markdown(
-            f"""<div class="inc-header">
-                <p class="inc-title">{inc["title"]}</p>
-                <p class="inc-meta">{inc["competition"]} &nbsp;·&nbsp; {inc["date"]}</p>
-            </div>""",
+            f'<p class="inc-title">{inc["title"]}</p>'
+            f'<p class="inc-meta">{inc["competition"]} &nbsp;·&nbsp; {inc["date"]}</p>',
             unsafe_allow_html=True,
         )
 
-        # YouTube embed — must use components.html(), not st.markdown, or iframe is stripped
+        # components.html() renders a real iframe; st.markdown strips iframes
         components.html(
-            f"""<div style="background:#000;border-radius:8px;overflow:hidden;aspect-ratio:16/9;">
-                <iframe
-                    width="100%" height="100%"
-                    src="https://www.youtube.com/embed/{vid_id}"
-                    frameborder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowfullscreen
-                    style="display:block;border:none;">
-                </iframe>
-            </div>""",
-            height=380,
+            '<div style="background:#000;border-radius:8px;overflow:hidden;">'
+            f'<iframe width="100%" height="370" src="https://www.youtube.com/embed/{vid_id}"'
+            ' frameborder="0" allow="accelerometer; autoplay; clipboard-write;'
+            ' encrypted-media; gyroscope; picture-in-picture" allowfullscreen'
+            ' style="display:block;border:none;"></iframe>'
+            '</div>',
+            height=370,
             scrolling=False,
         )
 

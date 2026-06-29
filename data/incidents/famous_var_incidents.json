@@ -1,67 +1,52 @@
 [
   {
     "id": "man-city-spurs-2019",
-    "title": "Man City vs Tottenham - CL Quarter-Final",
+    "title": "Man City vs Tottenham - Champions League",
     "date": "April 17, 2019",
-    "competition": "UEFA Champions League",
-    "teams": "Manchester City vs Tottenham Hotspur",
-    "summary": "Raheem Sterling scored what appeared to be a winner in injury time to send City through on away goals. VAR reviewed the goal and disallowed it after a lengthy check, finding Sergio Aguero's arm was in an offside position. Tottenham advanced instead.",
-    "outcome": "Goal Disallowed",
-    "expected_ruling": "Goal Disallowed",
+    "competition": "UEFA Champions League Quarter-Final",
+    "summary": "Sterling scored a last-minute winner to send City through on away goals. VAR disallowed it after a 4-minute check: Aguero's arm was fractionally offside in the build-up.",
     "situation_prefill": "Sergio Aguero plays the ball in the build-up to a goal. His raised arm extends beyond the line of the last defender. The goal is scored by a teammate. VAR reviews whether the arm counts as an offside body part under Law 11.",
-    "youtube_url": "https://www.youtube.com/watch?v=r6TBTo6lT-o",
-    "why_infamous": "Decided who went to the semi-finals. The arm-offside rule was almost unknown to fans before this moment. Review took over 4 minutes."
+    "expected_ruling": "Goal Disallowed",
+    "youtube_url": "https://www.youtube.com/watch?v=r6TBTo6lT-o"
   },
   {
     "id": "france-tunisia-wc-2022",
-    "title": "France vs Tunisia - World Cup Group Stage",
+    "title": "France vs Tunisia - World Cup 2022",
     "date": "November 30, 2022",
-    "competition": "FIFA World Cup 2022",
-    "teams": "France vs Tunisia",
-    "summary": "Antoine Griezmann scored a dramatic injury-time equalizer. The goal was allowed and players celebrated, then VAR intervened to disallow it for offside after the final whistle had already blown. The stadium was left in chaos.",
-    "outcome": "Goal Disallowed",
-    "expected_ruling": "Goal Disallowed",
+    "competition": "FIFA World Cup 2022 - Group Stage",
+    "summary": "Griezmann scored in injury time, players celebrated, then VAR disallowed it for offside after the final whistle had already blown. The stadium erupted in chaos.",
     "situation_prefill": "Antoine Griezmann receives the ball in the penalty area and scores. A French attacker is positioned ahead of the last Tunisian defender when the pass is played. VAR reviews the offside line and the timing of the pass.",
-    "youtube_url": "https://www.youtube.com/watch?v=C-kVZvQlblI",
-    "why_infamous": "Goal was allowed, players celebrated, then disallowed after the whistle. Chaos followed. Tunisia had already been eliminated but the sequence was unprecedented."
-  },
-  {
-    "id": "west-ham-villa-handball-2024",
-    "title": "West Ham vs Aston Villa - Premier League",
-    "date": "February 26, 2024",
-    "competition": "Premier League 2023/24",
-    "teams": "West Ham United vs Aston Villa",
-    "summary": "Tomas Soucek's arm blocked a cross in the penalty area. VAR reviewed the incident and awarded a penalty to Aston Villa under the new handball rules, which penalise arms that are in an unnatural position even when the player does not intend to handle the ball.",
-    "outcome": "Penalty",
-    "expected_ruling": "Penalty",
-    "situation_prefill": "A cross is played into the penalty area. West Ham's Tomas Soucek is in the box with his arm extended slightly away from his body. The ball strikes his arm. He does not appear to intentionally control the ball. VAR reviews whether this is handball under Law 12.",
-    "youtube_url": "https://www.youtube.com/watch?v=ieXHWqjIeuU",
-    "why_infamous": "Sparked widespread debate about intent vs position in handball decisions. The unnatural arm position rule continues to confuse players and fans."
-  },
-  {
-    "id": "bournemouth-wolves-fa-cup-2025",
-    "title": "Bournemouth vs Wolves - FA Cup 5th Round",
-    "date": "February 27, 2025",
-    "competition": "FA Cup 2024/25",
-    "teams": "Bournemouth vs Wolverhampton Wanderers",
-    "summary": "VAR reviewed an offside call and the semi-automated offside technology (SAOT) failed, causing a delay of over 7 minutes. The system could not complete the automated limb-mapping. The review had to be completed manually, and the goal was eventually disallowed.",
-    "outcome": "Goal Disallowed",
     "expected_ruling": "Goal Disallowed",
-    "situation_prefill": "A Bournemouth attacker scores a goal. An attacking player is potentially in an offside position when the ball was played. VAR initiates a semi-automated offside review. The goal is under review for whether any part of the attacker's body that can score a goal is ahead of the last defender.",
-    "youtube_url": "https://www.youtube.com/watch?v=tE17PcT4V2o",
-    "why_infamous": "The longest-ever VAR review in English football at that point. SAOT technology publicly failed in real time. 7+ minutes of players standing around waiting."
+    "youtube_url": "https://www.youtube.com/watch?v=C-kVZvQlblI"
+  },
+  {
+    "id": "luis-diaz-spurs-2023",
+    "title": "Luis Diaz Disallowed Goal - VAR Error",
+    "date": "September 30, 2023",
+    "competition": "Premier League 2023/24 - Tottenham vs Liverpool",
+    "summary": "Luis Diaz's goal was disallowed for offside. He was clearly onside. VAR upheld the flag due to a communication breakdown between the VAR and assistant VAR. PGMOL later admitted significant human error.",
+    "situation_prefill": "Luis Diaz receives the ball and scores. The assistant referee flags for offside. Replays show Diaz's entire body is behind the last defender when the ball is played. VAR reviews the flag. The question is whether any part of Luis Diaz's body was ahead of the last Tottenham defender at the moment of the pass.",
+    "expected_ruling": "Goal Stands",
+    "youtube_url": "https://www.youtube.com/watch?v=joyJ6qOibUQ"
+  },
+  {
+    "id": "japan-spain-wc-2022",
+    "title": "Japan vs Spain - The Ghost Ball",
+    "date": "December 1, 2022",
+    "competition": "FIFA World Cup 2022 - Group Stage",
+    "summary": "Morales's cross appeared to have gone fully out of play before Ao Tanaka tapped it in. VAR used 3D imaging technology to determine a sliver of the ball remained on the line. Goal stood. Japan topped the group.",
+    "situation_prefill": "Kaoru Mitoma races to the byline and plays a cross. The entire ball appears to cross the byline before Ao Tanaka converts. VAR reviews using semi-automated camera technology whether any part of the ball remained on or behind the byline at the moment the cross was made.",
+    "expected_ruling": "Goal Stands",
+    "youtube_url": "https://www.youtube.com/watch?v=7jX3gdU-E8U"
   },
   {
     "id": "brazil-switzerland-wc-2022",
-    "title": "Brazil vs Switzerland - World Cup Group Stage",
+    "title": "Brazil vs Switzerland - Handball Review",
     "date": "November 28, 2022",
-    "competition": "FIFA World Cup 2022",
-    "teams": "Brazil vs Switzerland",
-    "summary": "Casemiro's header appeared to be blocked by Manuel Akanji's hand inside the penalty area. VAR reviewed the incident for a potential handball penalty. After a lengthy review, no penalty was awarded because Akanji's arm was judged to be in a natural position against his body.",
-    "outcome": "No Penalty",
-    "expected_ruling": "No Penalty",
+    "competition": "FIFA World Cup 2022 - Group Stage",
+    "summary": "Casemiro's header was blocked by Akanji's arm inside the area. VAR reviewed for handball. No penalty given: the arm was judged to be in a natural position. The debate about what 'natural' means rumbled on.",
     "situation_prefill": "A header from Casemiro is blocked near the goal line by Switzerland defender Manuel Akanji. The ball strikes Akanji's arm. VAR reviews whether this is a handball offence under Law 12, specifically whether the arm was in an unnatural position.",
-    "youtube_url": "https://www.youtube.com/watch?v=fjx0Ab8riQs",
-    "why_infamous": "Showed the fine margin between handball and no handball. Akanji's arm was close to his body but the ball still hit it. Highlighted how subjective 'natural position' really is."
+    "expected_ruling": "No Penalty",
+    "youtube_url": "https://www.youtube.com/watch?v=fjx0Ab8riQs"
   }
 ]
