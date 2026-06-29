@@ -1,5 +1,7 @@
 """Streamlit demo UI for the VAR Decision Predictor."""
+import html as _html
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -43,6 +45,18 @@ RULING_COLORS = {
     "VAR Review - No Clear Error": WARNING,
 }
 
+_RULING_TINTS = {
+    NEGATIVE: "rgba(217,72,64,0.13)",
+    POSITIVE: "rgba(61,184,125,0.11)",
+    WARNING:  "rgba(214,135,42,0.11)",
+}
+
+# YouTube video IDs are exactly 11 chars from this alphabet
+_YT_ID_RE = re.compile(r"^[A-Za-z0-9_-]{11}$")
+_YT_ID_FROM_URL = re.compile(
+    r"(?:youtube\.com/(?:watch\?(?:.*&)?v=|shorts/)|youtu\.be/)([A-Za-z0-9_-]{11})"
+)
+
 CUSTOM_CSS = f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
@@ -65,7 +79,6 @@ html, body, [class*="css"], .stApp {{
     margin-right: auto !important;
 }}
 
-/* ── App header ── */
 .app-header {{
     text-align: center;
     margin-bottom: 2rem;
@@ -100,7 +113,6 @@ html, body, [class*="css"], .stApp {{
     text-wrap: pretty;
 }}
 
-/* ── Tabs ── */
 .stTabs [data-baseweb="tab-list"] {{
     gap: 0;
     border-bottom: 1px solid {BORDER};
@@ -128,7 +140,6 @@ html, body, [class*="css"], .stApp {{
     height: 2px !important;
 }}
 
-/* ── Onboarding steps ── */
 .steps {{
     display: flex;
     margin-bottom: 1.25rem;
@@ -146,9 +157,7 @@ html, body, [class*="css"], .stApp {{
     gap: 0.65rem;
 }}
 
-.step + .step {{
-    border-left: 1px solid {BORDER};
-}}
+.step + .step {{ border-left: 1px solid {BORDER}; }}
 
 .step-num {{
     font-size: 1rem;
@@ -159,20 +168,9 @@ html, body, [class*="css"], .stApp {{
     min-width: 1rem;
 }}
 
-.step-text {{
-    font-size: 0.8rem;
-    line-height: 1.5;
-    color: {MUTED};
-}}
+.step-text {{ font-size: 0.8rem; line-height: 1.5; color: {MUTED}; }}
+.step-text strong {{ color: {INK}; display: block; font-size: 0.85rem; margin-bottom: 0.1rem; }}
 
-.step-text strong {{
-    color: {INK};
-    display: block;
-    font-size: 0.85rem;
-    margin-bottom: 0.1rem;
-}}
-
-/* ── File uploader ── */
 div[data-testid="stFileUploader"] section {{
     border-radius: 10px;
     border: 1.5px dashed {BORDER};
@@ -181,9 +179,7 @@ div[data-testid="stFileUploader"] section {{
     cursor: pointer;
 }}
 
-div[data-testid="stFileUploader"] section:hover {{
-    border-color: {MUTED};
-}}
+div[data-testid="stFileUploader"] section:hover {{ border-color: {MUTED}; }}
 
 div[data-testid="stFileUploaderDropzoneInstructions"] div span {{
     color: {INK} !important;
@@ -191,13 +187,9 @@ div[data-testid="stFileUploaderDropzoneInstructions"] div span {{
     font-size: 0.95rem;
 }}
 
-/* Hide "Limit: 200MB per file • MP4, MOV..." text */
-div[data-testid="stFileUploaderDropzoneInstructions"] small {{
-    display: none !important;
-}}
+div[data-testid="stFileUploaderDropzoneInstructions"] small {{ display: none !important; }}
 
-/* ── Buttons ── */
-.stButton button {{
+.stButton button, .stFormSubmitButton button {{
     border-radius: 8px !important;
     font-weight: 600 !important;
     font-size: 0.92rem !important;
@@ -216,9 +208,7 @@ button[kind="primaryFormSubmit"],
 
 button[kind="primaryFormSubmit"]:hover,
 .stFormSubmitButton button:hover,
-.stButton button[kind="primary"]:hover {{
-    background: #ffffff !important;
-}}
+.stButton button[kind="primary"]:hover {{ background: #ffffff !important; }}
 
 .stButton button:not([kind="primary"]) {{
     background: {RAISED} !important;
@@ -231,13 +221,11 @@ button[kind="primaryFormSubmit"]:hover,
     border-color: {MUTED} !important;
 }}
 
-.stButton button:disabled,
-.stFormSubmitButton button:disabled {{
+.stButton button:disabled, .stFormSubmitButton button:disabled {{
     opacity: 0.35 !important;
     cursor: not-allowed !important;
 }}
 
-/* ── Verdict card ── */
 .verdict-card {{
     border-radius: 10px;
     overflow: hidden;
@@ -246,9 +234,7 @@ button[kind="primaryFormSubmit"]:hover,
     border: 1px solid {BORDER};
 }}
 
-.verdict-header {{
-    padding: 1.4rem 1.6rem 1.1rem;
-}}
+.verdict-header {{ padding: 1.4rem 1.6rem 1.1rem; }}
 
 .verdict-label {{
     font-size: 0.68rem;
@@ -278,7 +264,6 @@ button[kind="primaryFormSubmit"]:hover,
     font-weight: 500;
     color: {MUTED};
     margin: 0 0 0.65rem;
-    letter-spacing: 0.01em;
 }}
 
 .verdict-rationale {{
@@ -304,35 +289,12 @@ button[kind="primaryFormSubmit"]:hover,
     margin-bottom: 0.25rem;
 }}
 
-.verdict-plain-text {{
-    font-size: 0.88rem;
-    line-height: 1.6;
-    color: {MUTED};
-    margin: 0;
-}}
+.verdict-plain-text {{ font-size: 0.88rem; line-height: 1.6; color: {MUTED}; margin: 0; }}
 
-/* ── Incident items ── */
-.inc-title {{
-    font-size: 0.97rem;
-    font-weight: 700;
-    color: {INK};
-    margin: 0 0 0.08rem;
-}}
+.inc-title {{ font-size: 0.97rem; font-weight: 700; color: {INK}; margin: 0 0 0.08rem; }}
+.inc-meta {{ font-size: 0.74rem; color: {MUTED}; margin: 0 0 0.45rem; }}
+.inc-summary {{ font-size: 0.82rem; line-height: 1.55; color: {MUTED}; margin: 0.4rem 0 0.65rem; }}
 
-.inc-meta {{
-    font-size: 0.74rem;
-    color: {MUTED};
-    margin: 0 0 0.45rem;
-}}
-
-.inc-summary {{
-    font-size: 0.82rem;
-    line-height: 1.55;
-    color: {MUTED};
-    margin: 0.4rem 0 0.65rem;
-}}
-
-/* ── Expander ── */
 [data-testid="stExpander"] {{
     background: {SURFACE} !important;
     border: 1px solid {BORDER} !important;
@@ -340,12 +302,8 @@ button[kind="primaryFormSubmit"]:hover,
     margin-top: 0.5rem;
 }}
 
-[data-testid="stExpander"] summary span {{
-    color: {MUTED} !important;
-    font-size: 0.82rem !important;
-}}
+[data-testid="stExpander"] summary span {{ color: {MUTED} !important; font-size: 0.82rem !important; }}
 
-/* ── Misc ── */
 .stSpinner > div > div {{ border-top-color: {INK} !important; }}
 
 .stAlert {{
@@ -363,9 +321,7 @@ button[kind="primaryFormSubmit"]:hover,
 
 hr {{ border-color: {BORDER} !important; margin: 1.4rem 0 !important; }}
 
-@media (prefers-reduced-motion: reduce) {{
-    * {{ transition: none !important; }}
-}}
+@media (prefers-reduced-motion: reduce) {{ * {{ transition: none !important; }} }}
 </style>
 """
 
@@ -384,41 +340,54 @@ def ruling_color(ruling: str) -> str:
     return WARNING
 
 
-def render_verdict(result: VerdictResult, visual_desc: str | None = None):
-    color = ruling_color(result.predicted_ruling)
-    if color == NEGATIVE:
-        hdr_tint = "rgba(217,72,64,0.13)"
-    elif color == POSITIVE:
-        hdr_tint = "rgba(61,184,125,0.11)"
-    else:
-        hdr_tint = "rgba(214,135,42,0.11)"
+def ruling_tint(ruling: str) -> str:
+    """Header background tint for the verdict card, keyed on ruling_color output."""
+    return _RULING_TINTS.get(ruling_color(ruling), _RULING_TINTS[WARNING])
 
-    # Build HTML as concatenated single-line strings to avoid
-    # Markdown's 4-space-indent → code-block ambiguity
+
+def safe_yt_id(url: str) -> str | None:
+    """Extract and validate a YouTube video ID from any common URL format.
+
+    Accepts youtube.com/watch?v=, youtu.be/, and /shorts/ links.
+    Returns None if the ID cannot be extracted or fails the 11-char alphabet check.
+    """
+    m = _YT_ID_FROM_URL.search(url)
+    if m and _YT_ID_RE.match(m.group(1)):
+        return m.group(1)
+    return None
+
+
+def render_verdict(result: VerdictResult, visual_desc: str | None = None):
+    """Render the verdict card. All LLM-sourced fields are html.escaped before
+    interpolation to prevent XSS from prompt-injected model output.
+    """
+    color = ruling_color(result.predicted_ruling)
+    tint  = ruling_tint(result.predicted_ruling)
+
+    # Escape all LLM-generated strings before injecting into HTML (V1 fix)
+    ruling_safe  = _html.escape(result.predicted_ruling)
+    law_safe     = _html.escape(result.law_citation)
+    rat_safe     = _html.escape(result.rationale)
+
     plain_html = ""
     if result.plain_english_law:
-        law_escaped = (
-            result.plain_english_law
-            .replace("&", "&amp;")
-            .replace("<", "&lt;")
-            .replace(">", "&gt;")
-        )
+        plain_safe = _html.escape(result.plain_english_law)
         plain_html = (
             '<div class="verdict-plain-box">'
             '<div class="verdict-plain-label">What this law means</div>'
-            f'<p class="verdict-plain-text">{law_escaped}</p>'
+            f'<p class="verdict-plain-text">{plain_safe}</p>'
             '</div>'
         )
 
     card_html = (
         '<div class="verdict-card">'
-        f'<div class="verdict-header" style="background:{hdr_tint};">'
+        f'<div class="verdict-header" style="background:{tint};">'
         f'<p class="verdict-label" style="color:{color};">Predicted ruling</p>'
-        f'<p class="verdict-ruling" style="color:{color};">{result.predicted_ruling}</p>'
+        f'<p class="verdict-ruling" style="color:{color};">{ruling_safe}</p>'
         '</div>'
         f'<div class="verdict-body">'
-        f'<p class="verdict-law">{result.law_citation}</p>'
-        f'<p class="verdict-rationale">{result.rationale}</p>'
+        f'<p class="verdict-law">{law_safe}</p>'
+        f'<p class="verdict-rationale">{rat_safe}</p>'
         f'{plain_html}'
         '</div>'
         '</div>'
@@ -430,36 +399,31 @@ def render_verdict(result: VerdictResult, visual_desc: str | None = None):
             st.write(visual_desc)
 
 
-def run_prediction_from_video(video_bytes: bytes):
-    visual_desc = ""
+def _run_prediction(situation: str, visual_desc: str = "") -> None:
+    """Shared pipeline: situation text + optional visual desc → verdict card."""
+    with st.spinner("Matching against the Laws of the Game... (first request may take 1-2 min to load the model)"):
+        try:
+            intake = MatchIntake(situation=situation, visual_description=visual_desc)
+            result = predict_verdict(build_incident_text(intake))
+        except PredictionError as exc:
+            st.error(str(exc))
+            return
+    render_verdict(result, visual_desc or None)
+
+
+def run_prediction_from_video(video_bytes: bytes) -> None:
     with st.spinner("Reading the footage with Granite Vision..."):
         try:
             frames = extract_frames_jpeg(video_bytes)
             visual_desc = describe_video_frames(frames)
         except (VisionClientError, VideoExtractionError) as exc:
             st.warning(f"Could not analyze footage: {exc}")
-            return
-
-    with st.spinner("Matching against the Laws of the Game... (first request may take 1-2 min to load the model)"):
-        try:
-            intake = MatchIntake(situation=visual_desc, visual_description=visual_desc)
-            result = predict_verdict(build_incident_text(intake))
-        except PredictionError as exc:
-            st.error(str(exc))
-            return
-
-    render_verdict(result, visual_desc)
+            return  # explicit failure; do not continue with empty description
+    _run_prediction(visual_desc, visual_desc)
 
 
-def run_prediction_from_text(situation: str):
-    with st.spinner("Matching against the Laws of the Game... (first request may take 1-2 min to load the model)"):
-        try:
-            intake = MatchIntake(situation=situation)
-            result = predict_verdict(build_incident_text(intake))
-        except PredictionError as exc:
-            st.error(str(exc))
-            return
-    render_verdict(result)
+def run_prediction_from_text(situation: str) -> None:
+    _run_prediction(situation)
 
 
 # ── Page header ───────────────────────────────────────────────────────────────
@@ -509,34 +473,38 @@ with tab_upload:
 # ── Tab 2: Famous Incidents ───────────────────────────────────────────────────
 with tab_incidents:
     st.markdown(
-        f'<p style="font-size:0.85rem;color:{MUTED};margin-bottom:1.4rem;text-align:center;">Five decisions that stopped the game. Watch the clip, then press Analyze.</p>',
+        f'<p style="font-size:0.85rem;color:{MUTED};margin-bottom:1.4rem;text-align:center;">'
+        'Five decisions that stopped the game. Watch the clip, then press Analyze.</p>',
         unsafe_allow_html=True,
     )
 
     incidents = load_incidents()
     for inc in incidents:
-        vid_id = inc["youtube_url"].split("v=")[-1].split("&")[0]
+        vid_id = safe_yt_id(inc["youtube_url"])
 
         st.markdown(
-            f'<p class="inc-title">{inc["title"]}</p>'
-            f'<p class="inc-meta">{inc["competition"]} &nbsp;·&nbsp; {inc["date"]}</p>',
+            f'<p class="inc-title">{_html.escape(inc["title"])}</p>'
+            f'<p class="inc-meta">{_html.escape(inc["competition"])} &nbsp;·&nbsp; {_html.escape(inc["date"])}</p>',
             unsafe_allow_html=True,
         )
 
-        # components.html() renders a real iframe; st.markdown strips iframes
-        components.html(
-            '<div style="background:#000;border-radius:8px;overflow:hidden;">'
-            f'<iframe width="100%" height="370" src="https://www.youtube.com/embed/{vid_id}"'
-            ' frameborder="0" allow="accelerometer; autoplay; clipboard-write;'
-            ' encrypted-media; gyroscope; picture-in-picture" allowfullscreen'
-            ' style="display:block;border:none;"></iframe>'
-            '</div>',
-            height=370,
-            scrolling=False,
-        )
+        if vid_id:
+            # components.html() renders a real sandboxed iframe.
+            # st.markdown would strip the iframe tag.
+            components.html(
+                f'<iframe width="100%" height="370"'
+                f' src="https://www.youtube.com/embed/{vid_id}"'
+                ' frameborder="0"'
+                ' allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"'
+                ' allowfullscreen style="display:block;border:none;border-radius:8px;"></iframe>',
+                height=370,
+                scrolling=False,
+            )
+        else:
+            st.warning(f"Could not load video for {inc['title']} — invalid YouTube URL.")
 
         st.markdown(
-            f'<p class="inc-summary">{inc["summary"]}</p>',
+            f'<p class="inc-summary">{_html.escape(inc["summary"])}</p>',
             unsafe_allow_html=True,
         )
 

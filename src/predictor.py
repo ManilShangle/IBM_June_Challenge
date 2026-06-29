@@ -41,13 +41,6 @@ class VerdictResult:
     plain_english_law: str
     retrieved_law_excerpt: str
     retrieved_chunks: list[LawChunk]
-    # kept for backwards-compat but no longer populated
-    confidence_percent: int = 0
-    key_factors: list[str] = None
-
-    def __post_init__(self):
-        if self.key_factors is None:
-            self.key_factors = []
 
 
 class PredictionError(RuntimeError):

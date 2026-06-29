@@ -43,6 +43,5 @@ def test_predict_verdict_shape():
         "Defender's arm is raised above shoulder height and blocks a goal-bound shot inside the box."
     )
     assert result.predicted_ruling
-    assert 0 <= result.confidence_percent <= 100
     assert result.law_citation
     assert result.rationale
