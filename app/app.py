@@ -163,43 +163,11 @@ div[data-testid="stFileUploader"] section {{
     margin: 0;
 }}
 
-/* ── Confidence bar ── */
-.confidence-row {{
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.9rem 1.5rem;
+/* ── Law strip ── */
+.verdict-law-strip {{
+    padding: 0.6rem 1.5rem;
     border-top: 1px solid #E2E4E8;
     background: #FFFFFF;
-}}
-
-.confidence-number {{
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #0F1114;
-    min-width: 3.5ch;
-}}
-
-.confidence-track {{
-    flex: 1;
-    height: 6px;
-    background: #E2E4E8;
-    border-radius: 999px;
-    overflow: hidden;
-}}
-
-.confidence-fill {{
-    height: 100%;
-    border-radius: 999px;
-    transition: width 0.4s ease;
-}}
-
-.confidence-label-text {{
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.75rem;
-    color: #6B7280;
-    white-space: nowrap;
 }}
 
 /* ── Section labels ── */
@@ -221,21 +189,15 @@ div[data-testid="stFileUploader"] section {{
     margin: 0.75rem 0 0.5rem;
 }}
 
-/* ── Hide Streamlit progress bar (replaced with custom) ── */
-.stProgress {{
-    display: none;
-}}
-
 /* ── Expander ── */
 .streamlit-expanderHeader {{
     font-size: 0.85rem !important;
     color: #6B7280 !important;
 }}
 
-@media (prefers-reduced-motion: reduce) {{
-    .confidence-fill {{
-        transition: none;
-    }}
+/* ── Footage uploader hero ── */
+div[data-testid="stFileUploader"] {{
+    margin-bottom: 0.25rem;
 }}
 </style>
 """
@@ -267,20 +229,14 @@ def ruling_bg(ruling: str) -> str:
 def render_verdict(result: VerdictResult, ground_truth: str | None = None, visual_description: str | None = None):
     color = ruling_color(result.predicted_ruling)
     bg = ruling_bg(result.predicted_ruling)
-    pct = result.confidence_percent
     st.markdown(
         f"""
         <div class="verdict-card">
             <div class="verdict-card-header" style="background:{bg};">
                 <p class="verdict-ruling" style="color:{color};">{result.predicted_ruling}</p>
-                <p class="verdict-law">{result.law_citation}</p>
             </div>
-            <div class="confidence-row">
-                <span class="confidence-number">{pct}%</span>
-                <div class="confidence-track">
-                    <div class="confidence-fill" style="width:{pct}%; background:{color};"></div>
-                </div>
-                <span class="confidence-label-text">confidence</span>
+            <div class="verdict-law-strip">
+                <span class="verdict-law">{result.law_citation}</span>
             </div>
         </div>
         """,
@@ -318,17 +274,32 @@ def run_prediction(intake: MatchIntake, ground_truth: str | None = None):
 
 
 st.markdown('<p class="brand-mark">VAR Decision Predictor</p>', unsafe_allow_html=True)
-st.title("Know the call before it's revealed")
+st.title("Beat the ref to the call")
 st.markdown(
-    '<p class="subtitle">Describe the incident, name the teams, and attach footage. '
-    "The prediction is grounded in the IFAB Laws of the Game, with the cited rule shown "
-    "alongside the call.</p>",
+    '<p class="subtitle">Drop the footage. Get the ruling before the announcement, '
+    "cited against the IFAB Laws of the Game.</p>",
     unsafe_allow_html=True,
 )
 
 tab_intake, tab_samples = st.tabs(["New Incident", "Sample Scenarios"])
 
 with tab_intake:
+    st.markdown('<p class="section-label">Footage</p>', unsafe_allow_html=True)
+    footage = st.file_uploader(
+        "Upload a clip or still frame of the incident",
+        type=["mp4", "mov", "jpg", "jpeg", "png"],
+        label_visibility="collapsed",
+    )
+
+    st.markdown('<p class="section-label">Situation</p>', unsafe_allow_html=True)
+    situation = st.text_area(
+        "Describe what happened",
+        placeholder="e.g. Defender's arm raised above shoulder height blocks a goal-bound "
+        "shot inside the penalty box during a corner-kick scramble.",
+        height=100,
+        label_visibility="collapsed",
+    )
+
     st.markdown('<p class="section-label">Match</p>', unsafe_allow_html=True)
     col_a, col_b = st.columns(2)
     with col_a:
@@ -336,25 +307,9 @@ with tab_intake:
     with col_b:
         team_b = st.text_input("Team B", placeholder="e.g. France", label_visibility="visible")
 
-    st.markdown('<p class="section-label">Situation</p>', unsafe_allow_html=True)
-    situation = st.text_area(
-        "Describe what happened",
-        placeholder="e.g. Defender's arm is raised above shoulder height and blocks a "
-        "goal-bound shot inside the penalty box during a corner-kick scramble.",
-        height=120,
-        label_visibility="collapsed",
-    )
-
-    st.markdown('<p class="section-label">Footage (optional)</p>', unsafe_allow_html=True)
-    footage = st.file_uploader(
-        "Upload a clip or still frame of the incident",
-        type=["mp4", "mov", "jpg", "jpeg", "png"],
-        label_visibility="collapsed",
-    )
-
-    if st.button("Predict the call", type="primary", key="intake_predict"):
-        if not situation.strip():
-            st.warning("Describe the situation first.")
+    if st.button("Call it", type="primary", key="intake_predict"):
+        if not situation.strip() and footage is None:
+            st.warning("Add footage or describe the situation.")
         else:
             visual_description = ""
             if footage is not None:
@@ -384,5 +339,5 @@ with tab_samples:
     scenario = scenarios[idx]
     st.write(scenario["description"])
     st.caption(f"Difficulty: {scenario['difficulty']}")
-    if st.button("Predict the call", key="sample_predict"):
+    if st.button("Call it", key="sample_predict"):
         run_prediction(MatchIntake(situation=scenario["description"]), scenario["ground_truth"])
