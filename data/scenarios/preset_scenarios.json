@@ -1,0 +1,93 @@
+[
+  {
+    "id": "off-01",
+    "category": "Offside",
+    "description": "Striker's shoulder is level with the last defender as the ball is played forward by a teammate from midfield; no other defender is closer to the goal line.",
+    "ground_truth": "Not Offside (level = onside)",
+    "difficulty": "borderline"
+  },
+  {
+    "id": "off-02",
+    "category": "Offside",
+    "description": "Striker's foot is clearly ahead of the last defender's torso when the through-ball is played; striker runs onto it and scores.",
+    "ground_truth": "Offside - goal disallowed",
+    "difficulty": "clear"
+  },
+  {
+    "id": "off-03",
+    "category": "Offside",
+    "description": "Player in an offside position when the ball is played receives it but is not interfering with play, standing in their own half near the touchline far from the action.",
+    "ground_truth": "Not Offside - not involved in active play",
+    "difficulty": "borderline"
+  },
+  {
+    "id": "off-04",
+    "category": "Offside",
+    "description": "Very tight offside call decided by a margin of a few centimeters using semi-automated offside technology lines, attacker's armpit marginally ahead of defender's shoulder.",
+    "ground_truth": "Offside (technology-confirmed, armpit/shoulder daylight rule)",
+    "difficulty": "borderline"
+  },
+  {
+    "id": "hand-01",
+    "category": "Handball",
+    "description": "Defender's arm is away from the body in a non-natural position and the ball strikes it inside the penalty box while attempting to block a cross.",
+    "ground_truth": "Penalty - handball",
+    "difficulty": "clear"
+  },
+  {
+    "id": "hand-02",
+    "category": "Handball",
+    "description": "Ball strikes a defender's arm at close range while the arm is tucked tight to the body during a goalmouth scramble.",
+    "ground_truth": "No Penalty - ball-to-hand, arm in natural position",
+    "difficulty": "borderline"
+  },
+  {
+    "id": "hand-03",
+    "category": "Handball",
+    "description": "Attacking player's hand makes clear contact with the ball before it goes into the net.",
+    "ground_truth": "Goal Disallowed - handball by attacker",
+    "difficulty": "clear"
+  },
+  {
+    "id": "pen-01",
+    "category": "Penalty/DOGSO",
+    "description": "Defender makes clear contact on the attacker's standing leg before touching the ball during a tackle inside the box, attacker through on goal with no covering defender.",
+    "ground_truth": "Penalty + Red Card (DOGSO)",
+    "difficulty": "clear"
+  },
+  {
+    "id": "pen-02",
+    "category": "Penalty",
+    "description": "Attacker goes down inside the box after minimal contact from a defender's trailing leg, with the attacker already off balance before contact.",
+    "ground_truth": "No Penalty - simulation/insufficient contact",
+    "difficulty": "borderline"
+  },
+  {
+    "id": "pen-03",
+    "category": "Penalty",
+    "description": "Goalkeeper collides with an onrushing attacker inside the box after the keeper has already gathered the ball cleanly.",
+    "ground_truth": "Penalty - careless/reckless challenge by goalkeeper after gaining control",
+    "difficulty": "clear"
+  },
+  {
+    "id": "red-01",
+    "category": "Red Card",
+    "description": "Defender, last player back, deliberately handles the ball on the goal line to stop it crossing into the net.",
+    "ground_truth": "Red Card (DOGSO - handball denying a goal) + Penalty",
+    "difficulty": "clear"
+  },
+  {
+    "id": "red-02",
+    "category": "Red Card",
+    "description": "Player lunges into a tackle with excessive force, studs up, making contact above the ankle with the opponent's standing leg, ball not in playing distance.",
+    "ground_truth": "Red Card - serious foul play",
+    "difficulty": "clear"
+  },
+  {
+    "id": "red-03",
+    "category": "Red Card",
+    "description": "Two players jostle off the ball away from play after a whistle, one shoves the other in the chest with both hands, no punches thrown.",
+    "ground_truth": "Yellow Card - unsporting behavior/no excessive force",
+    "difficulty": "borderline"
+  }
+]
