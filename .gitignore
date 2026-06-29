@@ -7,3 +7,4 @@ data/processed/law_embeddings.npy
 .streamlit/secrets.toml
 *.egg-info/
 .pytest_cache/
+.claude/
