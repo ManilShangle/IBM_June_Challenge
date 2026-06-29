@@ -36,12 +36,18 @@ def build_incident_text(intake: MatchIntake) -> str:
 @dataclass
 class VerdictResult:
     predicted_ruling: str
-    confidence_percent: int
     law_citation: str
     rationale: str
-    key_factors: list[str]
+    plain_english_law: str
     retrieved_law_excerpt: str
     retrieved_chunks: list[LawChunk]
+    # kept for backwards-compat but no longer populated
+    confidence_percent: int = 0
+    key_factors: list[str] = None
+
+    def __post_init__(self):
+        if self.key_factors is None:
+            self.key_factors = []
 
 
 class PredictionError(RuntimeError):
@@ -64,7 +70,7 @@ def predict_verdict(incident_text: str) -> VerdictResult:
     prompt = build_verdict_prompt(incident_text, law_text)
 
     try:
-        raw = generate(prompt, max_new_tokens=900)
+        raw = generate(prompt, max_new_tokens=380)
     except GraniteClientError as exc:
         raise PredictionError(f"Granite request failed: {exc}") from exc
 
@@ -86,10 +92,9 @@ def predict_verdict(incident_text: str) -> VerdictResult:
     try:
         return VerdictResult(
             predicted_ruling=str(parsed["predicted_ruling"]),
-            confidence_percent=int(parsed["confidence_percent"]),
             law_citation=str(parsed["law_citation"]),
             rationale=str(parsed["rationale"]),
-            key_factors=[str(f) for f in parsed.get("key_factors", [])],
+            plain_english_law=str(parsed.get("plain_english_law", "")),
             retrieved_law_excerpt=law_text,
             retrieved_chunks=chunks,
         )

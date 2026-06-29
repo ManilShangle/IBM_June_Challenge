@@ -11,6 +11,7 @@ LAW_SECTIONS_MD_PATH = DATA_DIR / "processed" / "law_sections.md"
 LAW_SECTIONS_JSON_PATH = DATA_DIR / "processed" / "law_sections.json"
 LAW_EMBEDDINGS_PATH = DATA_DIR / "processed" / "law_embeddings.npy"
 SCENARIOS_PATH = DATA_DIR / "scenarios" / "preset_scenarios.json"
+INCIDENTS_PATH = DATA_DIR / "incidents" / "famous_var_incidents.json"
 
 GRANITE_BACKEND = os.getenv("GRANITE_BACKEND", "replicate")
 
@@ -34,4 +35,4 @@ LANGFLOW_FLOW_ID = os.getenv("LANGFLOW_FLOW_ID", "1faee69d-d060-4a1d-b573-001ca4
 
 EMBEDDING_MODEL_NAME = "all-MiniLM-L6-v2"
 RETRIEVAL_TOP_K = 4
-VIDEO_FRAMES = int(os.getenv("VIDEO_FRAMES", "5"))
+VIDEO_FRAMES = int(os.getenv("VIDEO_FRAMES", "3"))
