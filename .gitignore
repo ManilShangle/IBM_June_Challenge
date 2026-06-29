@@ -8,3 +8,4 @@ data/processed/law_embeddings.npy
 *.egg-info/
 .pytest_cache/
 .claude/
+data/demo_clips/*.mp4

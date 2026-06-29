@@ -4,12 +4,13 @@ import sys
 from pathlib import Path
 
 import streamlit as st
+import streamlit.components.v1 as components
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from src.config import INCIDENTS_PATH
 from src.predictor import MatchIntake, PredictionError, VerdictResult, build_incident_text, predict_verdict
-from src.vision_client import VisionClientError, describe_image, describe_video_frames
+from src.vision_client import VisionClientError, describe_video_frames
 from src.video_utils import VideoExtractionError, extract_frames_jpeg
 
 st.set_page_config(
@@ -18,246 +19,335 @@ st.set_page_config(
     layout="centered",
 )
 
-ACCENT = "#1A8F5E"
-NEGATIVE = "#C9252A"
-WARNING = "#B45309"
+ACCENT    = "#00D46A"
+NEGATIVE  = "#FF5757"
+WARNING   = "#FFAA33"
+INK       = "#F0F6FC"
+MUTED     = "#8B949E"
+BG        = "#0D1117"
+SURFACE   = "#161B22"
+BORDER    = "#30363D"
 
 RULING_COLORS = {
-    "Offside": NEGATIVE,
-    "Goal Disallowed": NEGATIVE,
-    "Penalty": NEGATIVE,
-    "Red Card": NEGATIVE,
-    "No Offside": ACCENT,
-    "Goal Stands": ACCENT,
-    "No Penalty": ACCENT,
-    "No Card": ACCENT,
-    "Yellow Card": WARNING,
+    "Offside":                  NEGATIVE,
+    "Goal Disallowed":          NEGATIVE,
+    "Penalty":                  NEGATIVE,
+    "Red Card":                 NEGATIVE,
+    "No Offside":               ACCENT,
+    "Goal Stands":              ACCENT,
+    "No Penalty":               ACCENT,
+    "No Card":                  ACCENT,
+    "Yellow Card":              WARNING,
     "VAR Review - No Clear Error": WARNING,
-}
-
-RULING_BG = {
-    "negative": "oklch(0.97 0.015 25)",
-    "positive": "oklch(0.96 0.018 155)",
-    "neutral":  "oklch(0.97 0.014 75)",
 }
 
 CUSTOM_CSS = f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
-html, body, [class*="css"] {{
+html, body, [class*="css"], .stApp {{
     font-family: 'IBM Plex Sans', sans-serif;
-    color: #0F1114;
+    background-color: {BG} !important;
+    color: {INK};
 }}
 
-#MainMenu, footer, header [data-testid="stToolbar"] {{
-    visibility: hidden;
-}}
+#MainMenu, footer, header [data-testid="stToolbar"] {{ visibility: hidden; }}
 
 .block-container {{
     padding-top: 2.5rem;
-    max-width: 720px;
+    max-width: 760px;
 }}
 
-/* ── Header ── */
+/* ── Brand header ── */
+.brand-lockup {{
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.6rem;
+}}
+
+.brand-dot {{
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: {ACCENT};
+    box-shadow: 0 0 12px {ACCENT};
+    flex-shrink: 0;
+}}
+
 .brand-mark {{
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.72rem;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: {ACCENT};
-    margin-bottom: 0.4rem;
 }}
 
 h1 {{
-    font-size: 1.65rem !important;
+    font-size: 2rem !important;
     font-weight: 700 !important;
-    letter-spacing: -0.02em;
-    color: #0F1114;
-    margin-bottom: 0.3rem !important;
+    letter-spacing: -0.03em !important;
+    color: {INK} !important;
+    margin-bottom: 0.25rem !important;
     text-wrap: balance;
+    line-height: 1.1 !important;
 }}
 
 .subtitle {{
-    color: #6B7280;
+    color: {MUTED};
     font-size: 0.95rem;
     line-height: 1.55;
-    margin-bottom: 1.8rem;
+    margin-bottom: 0.5rem;
     max-width: 60ch;
 }}
 
 /* ── Tabs ── */
 .stTabs [data-baseweb="tab-list"] {{
     gap: 1.6rem;
-    border-bottom: 1px solid #E2E4E8;
+    border-bottom: 1px solid {BORDER};
     background: transparent;
+    margin-bottom: 1.4rem;
 }}
 
 .stTabs [data-baseweb="tab"] {{
     height: 2.4rem;
-    color: #6B7280;
+    color: {MUTED};
     font-weight: 500;
     background: transparent !important;
+    padding: 0 !important;
 }}
 
 .stTabs [aria-selected="true"] {{
     color: {ACCENT} !important;
 }}
 
-/* ── Form controls ── */
+.stTabs [data-baseweb="tab-highlight"] {{
+    background-color: {ACCENT} !important;
+}}
+
+/* ── Upload zone ── */
 div[data-testid="stFileUploader"] section {{
-    border-radius: 8px;
-    border: 1px solid #D1D5DB;
-    background: #FFFFFF;
+    border-radius: 12px;
+    border: 2px dashed {BORDER};
+    background: {SURFACE};
+    padding: 2rem !important;
+    transition: border-color 0.2s;
 }}
 
-.stTextInput input, .stTextArea textarea {{
-    border-radius: 8px !important;
-    border: 1px solid #D1D5DB !important;
-    background: #FFFFFF !important;
-    color: #0F1114 !important;
+div[data-testid="stFileUploader"] section:hover {{
+    border-color: {ACCENT};
 }}
 
-.stTextInput input:focus, .stTextArea textarea:focus {{
-    border-color: {ACCENT} !important;
-    box-shadow: 0 0 0 3px oklch(0.92 0.04 155) !important;
+div[data-testid="stFileUploader"] label,
+div[data-testid="stFileUploader"] span,
+div[data-testid="stFileUploader"] p {{
+    color: {MUTED} !important;
 }}
 
-/* ── Primary CTA button ── */
+div[data-testid="stFileUploaderDropzoneInstructions"] div span {{
+    color: {INK} !important;
+    font-size: 1rem;
+    font-weight: 600;
+}}
+
+/* ── Buttons ── */
 .stButton button {{
     border-radius: 8px !important;
     font-weight: 600 !important;
-    transition: opacity 0.15s ease;
+    font-size: 0.95rem !important;
+    transition: all 0.15s ease !important;
+    border: none !important;
+}}
+
+.stButton button[kind="primary"],
+.stButton button[data-testid="stBaseButton-primary"] {{
+    background: {ACCENT} !important;
+    color: #0D1117 !important;
+    padding: 0.7rem 1.5rem !important;
+}}
+
+.stButton button:not([kind="primary"]) {{
+    background: {SURFACE} !important;
+    color: {INK} !important;
+    border: 1px solid {BORDER} !important;
 }}
 
 .stButton button:hover {{
-    opacity: 0.88;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(0, 212, 106, 0.25) !important;
+}}
+
+.stLinkButton a {{
+    border-radius: 8px !important;
+    background: {SURFACE} !important;
+    color: {INK} !important;
+    border: 1px solid {BORDER} !important;
+    font-weight: 500 !important;
+    transition: all 0.15s ease !important;
+    text-decoration: none !important;
+}}
+
+.stLinkButton a:hover {{
+    border-color: {ACCENT} !important;
+    color: {ACCENT} !important;
 }}
 
 /* ── Verdict card ── */
 .verdict-card {{
-    border-radius: 10px;
-    border: 1px solid #E2E4E8;
+    border-radius: 12px;
     overflow: hidden;
-    margin-top: 0.75rem;
+    margin-top: 1rem;
     margin-bottom: 0.5rem;
+    border: 1px solid {BORDER};
 }}
 
 .verdict-card-header {{
-    padding: 1.2rem 1.5rem 1rem;
+    padding: 1.5rem 1.8rem 1.2rem;
+}}
+
+.verdict-label {{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin: 0 0 0.4rem;
+    opacity: 0.8;
 }}
 
 .verdict-ruling {{
-    font-size: 2rem;
+    font-size: 2.4rem;
     font-weight: 700;
-    margin: 0 0 0.2rem;
-    letter-spacing: -0.02em;
-    line-height: 1.15;
+    margin: 0;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+}}
+
+.verdict-body {{
+    padding: 1rem 1.8rem 1.4rem;
+    background: {SURFACE};
 }}
 
 .verdict-law {{
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.8rem;
-    color: #6B7280;
-    margin: 0;
+    color: {MUTED};
+    margin: 0 0 0.8rem;
 }}
 
-/* ── Law strip ── */
-.verdict-law-strip {{
-    padding: 0.6rem 1.5rem;
-    border-top: 1px solid #E2E4E8;
-    background: #FFFFFF;
-}}
-
-/* ── Plain-English box ── */
-.law-plain-english {{
-    background: #F5F6F8;
-    border-radius: 8px;
-    padding: 0.85rem 1rem;
-    margin: 0.75rem 0;
-    font-size: 0.93rem;
-    line-height: 1.6;
-    color: #374151;
-    border-left: 3px solid #E2E4E8;
-}}
-
-.law-plain-english-label {{
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.7rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: #9CA3AF;
-    margin-bottom: 0.3rem;
-}}
-
-/* ── Section labels ── */
-.section-label {{
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.74rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: #6B7280;
-    margin-bottom: 0.4rem;
-    margin-top: 0.2rem;
-}}
-
-/* ── Rationale ── */
-.rationale-text {{
+.verdict-rationale {{
     font-size: 0.97rem;
     line-height: 1.65;
-    color: #1a1d23;
-    margin: 0.75rem 0 0.5rem;
+    color: #C9D1D9;
+    margin: 0 0 0.8rem;
 }}
 
-/* ── Expander ── */
-.streamlit-expanderHeader {{
-    font-size: 0.85rem !important;
-    color: #6B7280 !important;
+.verdict-plain {{
+    background: rgba(255,255,255,0.04);
+    border: 1px solid {BORDER};
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: {MUTED};
 }}
 
-/* ── Famous incident cards ── */
-.incident-card {{
-    border: 1px solid #E2E4E8;
-    border-radius: 10px;
-    padding: 1rem 1.2rem;
-    margin-bottom: 0.75rem;
-    background: #FFFFFF;
-}}
-
-.incident-title {{
-    font-size: 1rem;
-    font-weight: 700;
-    color: #0F1114;
-    margin: 0 0 0.15rem;
-}}
-
-.incident-meta {{
+.verdict-plain-label {{
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.74rem;
-    color: #9CA3AF;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: {ACCENT};
+    margin-bottom: 0.3rem;
+    opacity: 0.8;
+}}
+
+/* ── Section label ── */
+.section-label {{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: {MUTED};
     margin-bottom: 0.5rem;
 }}
 
-.incident-summary {{
-    font-size: 0.9rem;
-    line-height: 1.6;
-    color: #374151;
-    margin-bottom: 0.65rem;
+/* ── Incident card ── */
+.incident-card {{
+    background: {SURFACE};
+    border: 1px solid {BORDER};
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 1.2rem;
 }}
 
-.incident-infamous {{
-    font-size: 0.82rem;
-    font-style: italic;
-    color: #6B7280;
-    padding: 0.5rem 0.75rem;
-    background: #F5F6F8;
-    border-radius: 6px;
-    margin-bottom: 0.65rem;
+.incident-card-body {{
+    padding: 0.9rem 1.1rem 0.75rem;
 }}
 
-/* ── Footage uploader hero ── */
-div[data-testid="stFileUploader"] {{
-    margin-bottom: 0.25rem;
+.incident-title {{
+    font-size: 0.97rem;
+    font-weight: 700;
+    color: {INK};
+    margin: 0 0 0.2rem;
+}}
+
+.incident-desc {{
+    font-size: 0.85rem;
+    line-height: 1.55;
+    color: {MUTED};
+    margin: 0;
+}}
+
+/* ── Upload hint ── */
+.upload-hint {{
+    font-size: 0.8rem;
+    color: {MUTED};
+    margin-top: 0.4rem;
+    margin-bottom: 1.2rem;
+}}
+
+/* ── Spinner ── */
+.stSpinner > div > div {{
+    border-top-color: {ACCENT} !important;
+}}
+
+/* ── Expander ── */
+[data-testid="stExpander"] {{
+    background: {SURFACE} !important;
+    border: 1px solid {BORDER} !important;
+    border-radius: 8px !important;
+}}
+
+[data-testid="stExpander"] summary {{
+    color: {MUTED} !important;
+    font-size: 0.85rem !important;
+}}
+
+[data-testid="stExpander"] summary:hover {{
+    color: {INK} !important;
+}}
+
+/* ── Alerts ── */
+.stAlert {{
+    background: {SURFACE} !important;
+    border: 1px solid {BORDER} !important;
+    border-radius: 8px !important;
+    color: {INK} !important;
+}}
+
+/* ── Demo clips note ── */
+.demo-note {{
+    background: rgba(0, 212, 106, 0.07);
+    border: 1px solid rgba(0, 212, 106, 0.2);
+    border-radius: 8px;
+    padding: 0.7rem 1rem;
+    font-size: 0.85rem;
+    color: {MUTED};
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+}}
+
+.demo-note strong {{
+    color: {ACCENT};
 }}
 </style>
 """
@@ -277,172 +367,148 @@ def ruling_color(ruling: str) -> str:
     return WARNING
 
 
-def ruling_bg(ruling: str) -> str:
-    color = ruling_color(ruling)
-    if color == NEGATIVE:
-        return RULING_BG["negative"]
-    if color == ACCENT:
-        return RULING_BG["positive"]
-    return RULING_BG["neutral"]
+def yt_embed(video_url: str, height: int = 220) -> str:
+    vid_id = video_url.split("v=")[-1].split("&")[0]
+    return f"""
+    <div style="border-radius:10px;overflow:hidden;margin:0;">
+        <iframe width="100%" height="{height}" src="https://www.youtube.com/embed/{vid_id}"
+            frameborder="0" allow="accelerometer; autoplay; clipboard-write;
+            encrypted-media; gyroscope; picture-in-picture" allowfullscreen
+            style="display:block;"></iframe>
+    </div>"""
 
 
-def render_verdict(result: VerdictResult, visual_description: str | None = None):
+def render_verdict(result: VerdictResult, visual_desc: str | None = None):
     color = ruling_color(result.predicted_ruling)
-    bg = ruling_bg(result.predicted_ruling)
+    # Compute a faint tinted bg for the header
+    if color == NEGATIVE:
+        hdr_bg = "rgba(255,87,87,0.12)"
+    elif color == ACCENT:
+        hdr_bg = "rgba(0,212,106,0.12)"
+    else:
+        hdr_bg = "rgba(255,170,51,0.12)"
+
     st.markdown(
-        f"""
-        <div class="verdict-card">
-            <div class="verdict-card-header" style="background:{bg};">
+        f"""<div class="verdict-card">
+            <div class="verdict-card-header" style="background:{hdr_bg};">
+                <p class="verdict-label" style="color:{color};">VAR ruling</p>
                 <p class="verdict-ruling" style="color:{color};">{result.predicted_ruling}</p>
             </div>
-            <div class="verdict-law-strip">
-                <span class="verdict-law">{result.law_citation}</span>
+            <div class="verdict-body">
+                <p class="verdict-law">{result.law_citation}</p>
+                <p class="verdict-rationale">{result.rationale}</p>
+                {"" if not result.plain_english_law else f'<div class="verdict-plain"><div class="verdict-plain-label">What this law means</div>{result.plain_english_law}</div>'}
             </div>
-        </div>
-        """,
+        </div>""",
         unsafe_allow_html=True,
     )
 
-    st.markdown(f'<p class="rationale-text">{result.rationale}</p>', unsafe_allow_html=True)
-
-    if result.plain_english_law:
-        st.markdown(
-            f"""
-            <div class="law-plain-english">
-                <div class="law-plain-english-label">What this law means</div>
-                {result.plain_english_law}
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-    if visual_description:
+    if visual_desc:
         with st.expander("What the footage analysis saw"):
-            st.write(visual_description)
+            st.write(visual_desc)
 
-    with st.expander("Show IFAB Law text used for grounding"):
+    with st.expander("IFAB Law text used for grounding"):
         st.text(result.retrieved_law_excerpt)
 
 
-def run_prediction(intake: MatchIntake, prefill_key: str = "intake"):
+def run_prediction_from_video(video_bytes: bytes, filename: str, fallback_situation: str = ""):
+    visual_desc = ""
+    if video_bytes:
+        with st.spinner("Reading the footage..."):
+            try:
+                frames = extract_frames_jpeg(video_bytes)
+                visual_desc = describe_video_frames(frames)
+            except (VisionClientError, VideoExtractionError) as exc:
+                st.warning(f"Could not analyze footage: {exc}.")
+                if fallback_situation:
+                    visual_desc = ""
+
+    situation = visual_desc or fallback_situation
+    if not situation:
+        st.error("Could not extract a description from the footage. Try a different clip.")
+        return
+
     with st.spinner("Calling it..."):
         try:
-            incident_text = build_incident_text(intake)
-            result = predict_verdict(incident_text)
+            intake = MatchIntake(situation=situation, visual_description=visual_desc)
+            result = predict_verdict(build_incident_text(intake))
         except PredictionError as exc:
             st.error(str(exc))
             return
-    render_verdict(result, intake.visual_description if intake.visual_description else None)
+
+    render_verdict(result, visual_desc if visual_desc else None)
 
 
-# ── Page header ──────────────────────────────────────────────────────────────
-st.markdown('<p class="brand-mark">VAR Decision Predictor</p>', unsafe_allow_html=True)
+def run_prediction_from_text(situation: str):
+    with st.spinner("Calling it..."):
+        try:
+            intake = MatchIntake(situation=situation)
+            result = predict_verdict(build_incident_text(intake))
+        except PredictionError as exc:
+            st.error(str(exc))
+            return
+    render_verdict(result)
+
+
+# ── Page header ───────────────────────────────────────────────────────────────
+st.markdown(
+    f"""<div class="brand-lockup">
+        <div class="brand-dot"></div>
+        <span class="brand-mark">VAR Decision Predictor</span>
+    </div>""",
+    unsafe_allow_html=True,
+)
 st.title("Beat the ref to the call")
 st.markdown(
-    '<p class="subtitle">Drop the footage. Get the ruling before the announcement, '
-    "cited against the IFAB Laws of the Game.</p>",
+    '<p class="subtitle">Drop the footage. Get the ruling grounded in the IFAB Laws of the Game, before the announcement.</p>',
     unsafe_allow_html=True,
 )
 
-tab_intake, tab_incidents = st.tabs(["New Incident", "Famous Incidents"])
+tab_upload, tab_incidents = st.tabs(["Upload Footage", "Famous Incidents"])
 
-# ── Tab 1: New Incident ───────────────────────────────────────────────────────
-with tab_intake:
-    st.markdown('<p class="section-label">Footage</p>', unsafe_allow_html=True)
+# ── Tab 1: Upload Footage ─────────────────────────────────────────────────────
+with tab_upload:
     footage = st.file_uploader(
-        "Upload a clip or still frame of the incident",
+        "Drop a clip or frame",
         type=["mp4", "mov", "jpg", "jpeg", "png"],
         label_visibility="collapsed",
     )
-
-    st.markdown('<p class="section-label">Situation</p>', unsafe_allow_html=True)
-
-    # Pre-fill from famous incidents tab
-    default_situation = st.session_state.get("prefill_situation", "")
-    default_team_a = st.session_state.get("prefill_team_a", "")
-    default_team_b = st.session_state.get("prefill_team_b", "")
-
-    situation = st.text_area(
-        "Describe what happened",
-        value=default_situation,
-        placeholder="e.g. Defender's arm raised above shoulder height blocks a goal-bound "
-        "shot inside the penalty box during a corner-kick scramble.",
-        height=100,
-        label_visibility="collapsed",
-    )
-
-    st.markdown('<p class="section-label">Match</p>', unsafe_allow_html=True)
-    col_a, col_b = st.columns(2)
-    with col_a:
-        team_a = st.text_input("Team A", value=default_team_a, placeholder="e.g. Argentina", label_visibility="visible")
-    with col_b:
-        team_b = st.text_input("Team B", value=default_team_b, placeholder="e.g. France", label_visibility="visible")
-
-    if st.button("Call it", type="primary", key="intake_predict"):
-        if not situation.strip() and footage is None:
-            st.warning("Add footage or describe the situation.")
-        else:
-            visual_description = ""
-            if footage is not None:
-                with st.spinner("Reading the footage..."):
-                    try:
-                        footage_bytes = footage.getvalue()
-                        if footage.type and footage.type.startswith("video"):
-                            frames = extract_frames_jpeg(footage_bytes)
-                            visual_description = describe_video_frames(frames)
-                        else:
-                            visual_description = describe_image(footage_bytes)
-                    except (VisionClientError, VideoExtractionError) as exc:
-                        st.warning(f"Could not analyze footage: {exc}. Continuing with the text description only.")
-
-            intake = MatchIntake(
-                situation=situation,
-                team_a=team_a,
-                team_b=team_b,
-                visual_description=visual_description,
-            )
-            run_prediction(intake)
-
-    # Clear pre-fill after use
-    if "prefill_situation" in st.session_state and situation == st.session_state.get("prefill_situation"):
-        pass  # keep it until user edits or calls it
-
-# ── Tab 2: Famous Incidents ───────────────────────────────────────────────────
-with tab_incidents:
     st.markdown(
-        '<p class="subtitle" style="margin-bottom:1.2rem;">Five VAR decisions that took forever '
-        "and changed everything. Watch the clip, then load it to see what the Laws actually say.</p>",
+        '<p class="upload-hint">Upload a video clip or still image. IBM Granite Vision reads the footage and the Laws are searched automatically.</p>',
         unsafe_allow_html=True,
     )
 
-    incidents = load_incidents()
-    for inc in incidents:
-        teams_split = inc["teams"].split(" vs ")
-        t_a = teams_split[0] if len(teams_split) > 0 else ""
-        t_b = teams_split[1] if len(teams_split) > 1 else ""
-
-        outcome_color = ruling_color(inc["outcome"])
-
+    # Show demo clips hint
+    demo_dir = Path(__file__).resolve().parent.parent / "data" / "demo_clips"
+    demo_clips = sorted(demo_dir.glob("*.mp4")) if demo_dir.exists() else []
+    if demo_clips:
+        names = ", ".join(f.stem.replace("_", " ") for f in demo_clips)
         st.markdown(
-            f"""
-            <div class="incident-card">
-                <p class="incident-title">{inc["title"]}</p>
-                <p class="incident-meta">{inc["competition"]} &nbsp;·&nbsp; {inc["date"]}</p>
-                <p class="incident-summary">{inc["summary"]}</p>
-                <p class="incident-infamous">{inc["why_infamous"]}</p>
-            </div>
-            """,
+            f'<div class="demo-note"><strong>Demo clips ready:</strong> {names} &mdash; find them in <code>data/demo_clips/</code></div>',
             unsafe_allow_html=True,
         )
 
-        col_watch, col_load = st.columns([1, 1])
-        with col_watch:
-            st.link_button("Watch on YouTube", inc["youtube_url"], use_container_width=True)
-        with col_load:
-            if st.button("Load incident", key=f"load_{inc['id']}", use_container_width=True):
-                st.session_state["prefill_situation"] = inc["situation_prefill"]
-                st.session_state["prefill_team_a"] = t_a
-                st.session_state["prefill_team_b"] = t_b
-                st.toast(f"Loaded: {inc['title']}. Switch to New Incident to call it.")
+    if st.button("Call it", type="primary", key="upload_predict", disabled=footage is None):
+        run_prediction_from_video(footage.getvalue(), footage.name)
 
-        st.markdown("<div style='margin-bottom:0.25rem;'></div>", unsafe_allow_html=True)
+# ── Tab 2: Famous Incidents ───────────────────────────────────────────────────
+with tab_incidents:
+    incidents = load_incidents()
+    for inc in incidents:
+        st.markdown(
+            f"""<div class="incident-card">
+                <div style="border-radius:10px 10px 0 0; overflow:hidden;">
+                    {yt_embed(inc["youtube_url"], height=210)}
+                </div>
+                <div class="incident-card-body">
+                    <p class="incident-title">{inc["title"]} &nbsp;<span style="font-weight:400;color:{MUTED};font-size:0.8rem;">{inc["date"]}</span></p>
+                    <p class="incident-desc">{inc["summary"]}</p>
+                </div>
+            </div>""",
+            unsafe_allow_html=True,
+        )
+
+        if st.button("Analyze this incident", key=f"analyze_{inc['id']}", use_container_width=True):
+            run_prediction_from_text(inc["situation_prefill"])
+
+        st.markdown("<div style='margin-bottom:0.5rem;'></div>", unsafe_allow_html=True)
