@@ -39,7 +39,7 @@ Prediction with a confidence score is the headline feature: anticipation is the 
 - **IBM Granite** (via watsonx.ai or Replicate) generates the predicted ruling, confidence, and rationale
 - **IBM Granite Vision** reads uploaded footage and describes what's relevant to the decision
 - **Docling** parses the official IFAB Laws of the Game PDF into structured, retrievable text
-- **Langflow** orchestrates the retrieve, predict, explain pipeline visually (see [`/flows`](flows/))
+- **Langflow** orchestrates the retrieve, predict, explain pipeline visually (see [`/flows`](flows/)). The exported flow calls the same IBM watsonx.ai Granite endpoint that the Python app uses when `GRANITE_BACKEND=watsonx`, so the visual flow and the Streamlit app are two interfaces to the same backend.
 - **Streamlit** is the demo UI
 - **OpenCV** extracts a representative frame from uploaded video clips
 - Lightweight in-memory retrieval (sentence-transformer embeddings, cosine similarity, and keyword boosting) needs no vector database for the ~50-130 Law chunks involved
