@@ -122,7 +122,7 @@ Switch `GRANITE_BACKEND` in `.env` without changing any code:
 
 ## Demo video
 
-A recorded walkthrough will be linked here before final submission.
+https://youtu.be/GeqUicBTiOo
 
 ## Repository layout
 
